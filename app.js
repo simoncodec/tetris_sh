@@ -1,5 +1,7 @@
 const WIDTH = 6;
-const HEIGHT = 8;
+const STANDARD_HEIGHT = 8;
+const TETRIS_HEIGHT = 12;
+let HEIGHT = STANDARD_HEIGHT;
 const CHARGE_SIZE = 3;
 const TYPES = ["rock", "paper", "scissors"];
 const BEATS = {
@@ -121,6 +123,7 @@ const state = {
 
 let dragging = false;
 let dragTarget = null;
+let tetrisTouch = null;
 let scrambleTimers = [];
 let tetrisTimer = null;
 
@@ -143,6 +146,12 @@ function inBounds(row, col) {
 
 function sleep(ms) {
   return new Promise((resolve) => window.setTimeout(resolve, ms));
+}
+
+function haptic(duration = 8) {
+  if ("vibrate" in navigator) {
+    navigator.vibrate(duration);
+  }
 }
 
 function isSpecial(tile) {
@@ -489,6 +498,7 @@ function getFallingTileMap() {
 
 function render() {
   els.board.textContent = "";
+  els.board.classList.toggle("tetris-board", state.mode === "tetris");
   const fallingTiles = getFallingTileMap();
 
   for (let row = 0; row < HEIGHT; row += 1) {
@@ -1255,7 +1265,7 @@ function clearTetrisTimer() {
 }
 
 function getTetrisDropDelay() {
-  return Math.max(280, 760 - Math.floor(state.moves / 5) * 45);
+  return Math.max(360, 900 - Math.floor(state.moves / 5) * 35);
 }
 
 function normalizeTetromino(cells) {
@@ -1417,6 +1427,7 @@ function moveTetrisSideways(delta) {
 
   if (moveTetromino(0, delta)) {
     render();
+    haptic(6);
   }
 }
 
@@ -1427,6 +1438,7 @@ function rotateTetris() {
 
   if (rotateTetromino()) {
     render();
+    haptic(10);
   }
 }
 
@@ -1438,6 +1450,7 @@ async function hardDropTetromino() {
   while (moveTetromino(1, 0)) {
   }
   render();
+  haptic(18);
   await lockTetromino();
 }
 
@@ -1538,6 +1551,7 @@ function showGame() {
 
 function startGame(mode) {
   state.mode = mode;
+  HEIGHT = mode === "tetris" ? TETRIS_HEIGHT : STANDARD_HEIGHT;
   showGame();
   newGame();
 }
@@ -1651,6 +1665,46 @@ els.board.addEventListener("pointerleave", () => {
   if (!dragging) {
     clearPreview();
     render();
+  }
+});
+
+els.board.addEventListener("pointerdown", (event) => {
+  if (state.mode !== "tetris" || state.locked || state.gameOver || event.pointerType !== "touch") {
+    return;
+  }
+
+  tetrisTouch = { x: event.clientX, y: event.clientY, pointerId: event.pointerId };
+  els.board.setPointerCapture(event.pointerId);
+  event.preventDefault();
+});
+
+els.board.addEventListener("pointerup", (event) => {
+  if (!tetrisTouch || tetrisTouch.pointerId !== event.pointerId) {
+    return;
+  }
+
+  const deltaX = event.clientX - tetrisTouch.x;
+  const deltaY = event.clientY - tetrisTouch.y;
+  const distance = Math.max(Math.abs(deltaX), Math.abs(deltaY));
+  tetrisTouch = null;
+  els.board.releasePointerCapture(event.pointerId);
+
+  if (distance < 20) {
+    rotateTetris();
+  } else if (Math.abs(deltaX) > Math.abs(deltaY)) {
+    moveTetrisSideways(deltaX > 0 ? 1 : -1);
+  } else if (deltaY > 0) {
+    hardDropTetromino();
+  } else {
+    rotateTetris();
+  }
+
+  event.preventDefault();
+});
+
+els.board.addEventListener("pointercancel", (event) => {
+  if (tetrisTouch?.pointerId === event.pointerId) {
+    tetrisTouch = null;
   }
 });
 
