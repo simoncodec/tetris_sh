@@ -63,6 +63,21 @@
               <span class="rise"></span><span class="rock rise"></span><span class="paper rise"></span><span></span><span class="scissors rise"></span><span class="rise"></span>
             </span>
           </button>
+
+          <button class="start-card tetris-card" id="startTetrisButton" type="button">
+            <span class="start-card-top">
+              <span>
+                <span class="start-kicker">Test</span>
+                <strong>Tetris Arcade</strong>
+              </span>
+              <span class="start-badge">Drop</span>
+            </span>
+            <span class="start-board tetris-preview" aria-hidden="true">
+              <span></span><span></span><span class="rock"></span><span></span><span></span><span></span>
+              <span></span><span class="paper"></span><span class="rock"></span><span class="scissors"></span><span></span><span></span>
+              <span></span><span></span><span class="paper"></span><span class="scissors"></span><span></span><span></span>
+            </span>
+          </button>
         </section>
 
         <div class="ad-space" aria-label="Emplacement publicitaire"></div>
@@ -101,7 +116,7 @@
           </div>
         </section>
 
-        <section class="hand" aria-label="Bloc actuel">
+        <section class="hand" id="handPanel" aria-label="Bloc actuel">
           <div class="queue">
             <button class="current-piece" id="currentPiece" type="button" aria-label="Bloc actuel"></button>
             <div class="next-pieces" aria-label="Prochains blocs">
@@ -110,6 +125,13 @@
             </div>
           </div>
           <button class="swap-button" id="swapButton" type="button">Échanger</button>
+        </section>
+
+        <section class="tetris-controls hidden" id="tetrisControls" aria-label="Commandes Tetris">
+          <button class="tetris-button" id="tetrisLeftButton" type="button" aria-label="Déplacer à gauche">←</button>
+          <button class="tetris-button" id="tetrisRotateButton" type="button" aria-label="Tourner">↻</button>
+          <button class="tetris-button" id="tetrisRightButton" type="button" aria-label="Déplacer à droite">→</button>
+          <button class="tetris-button drop" id="tetrisDropButton" type="button" aria-label="Faire tomber">⇩</button>
         </section>
 
         <section class="arcade-meter" id="arcadeMeter" aria-label="Pression arcade">

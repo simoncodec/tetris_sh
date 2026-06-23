@@ -438,6 +438,35 @@ button {
     rgba(38, 16, 63, 0.88);
 }
 
+.tetris-card {
+  background:
+    linear-gradient(0deg, rgba(93, 168, 255, 0.17), transparent 44%),
+    rgba(38, 16, 63, 0.88);
+}
+
+.tetris-preview .rock,
+.tetris-preview .paper,
+.tetris-preview .scissors {
+  animation: tetrisPreviewDrop 1.8s ease-in-out infinite alternate;
+}
+
+.tetris-preview .paper {
+  animation-delay: 180ms;
+}
+
+.tetris-preview .scissors {
+  animation-delay: 360ms;
+}
+
+@keyframes tetrisPreviewDrop {
+  from {
+    transform: translateY(-3px);
+  }
+  to {
+    transform: translateY(3px);
+  }
+}
+
 @keyframes gridDrift {
   0% {
     background-position: 0 0, 0 0;
@@ -673,6 +702,85 @@ h2 {
     0 4px 0 rgba(0, 0, 0, 0.26);
 }
 
+.cell.special {
+  --special-color: #ffffff;
+  background:
+    radial-gradient(circle at 30% 18%, rgba(255, 255, 255, 0.54), transparent 0.8rem),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--special-color) 74%, #ffffff) 0%,
+      var(--special-color) 48%,
+      color-mix(in srgb, var(--special-color) 68%, #12001f) 100%
+    );
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 255, 255, 0.44),
+    inset 0 -7px 0 rgba(0, 0, 0, 0.24),
+    0 0 18px color-mix(in srgb, var(--special-color) 62%, transparent),
+    0 5px 0 rgba(0, 0, 0, 0.28);
+}
+
+.cell.special .symbol {
+  width: 70%;
+  height: 70%;
+}
+
+.cell.special.created {
+  animation: specialCreate 420ms cubic-bezier(0.18, 0.85, 0.26, 1.2) both;
+}
+
+@keyframes specialCreate {
+  0% {
+    filter: brightness(2.1) saturate(0.7);
+    opacity: 0;
+    transform: scale(0.2) rotate(-24deg);
+  }
+  60% {
+    filter: brightness(1.45) saturate(1.3);
+    opacity: 1;
+    transform: scale(1.18) rotate(6deg);
+  }
+  100% {
+    filter: brightness(1) saturate(1);
+    transform: scale(1) rotate(0);
+  }
+}
+
+.cell.onyx {
+  --special-color: #a98bff;
+}
+
+.cell.gold {
+  --special-color: #ffd15a;
+}
+
+.cell.diamond {
+  --special-color: #89efff;
+}
+
+.cell.green-paper {
+  --special-color: #7df5a3;
+}
+
+.cell.bag {
+  --special-color: #c9ef5a;
+}
+
+.cell.money {
+  --special-color: #9cf06e;
+}
+
+.cell.pruner {
+  --special-color: #ff9ad1;
+}
+
+.cell.saber {
+  --special-color: #ff73bd;
+}
+
+.cell.chainsaw {
+  --special-color: #ff6d85;
+}
+
 .symbol {
   width: 62%;
   height: 62%;
@@ -692,12 +800,48 @@ h2 {
   opacity: 0.76;
 }
 
+.cell.falling-tile {
+  animation: fallingTilePulse 620ms ease-in-out infinite alternate;
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 255, 255, 0.45),
+    inset 0 -7px 0 rgba(0, 0, 0, 0.2),
+    0 0 20px color-mix(in srgb, var(--piece-color) 68%, transparent),
+    0 4px 0 rgba(0, 0, 0, 0.26);
+}
+
+@keyframes fallingTilePulse {
+  from {
+    filter: brightness(1);
+  }
+  to {
+    filter: brightness(1.2);
+  }
+}
+
 .cell.preview-kill {
   background: rgba(255, 79, 158, 0.26);
   box-shadow:
     inset 0 0 0 3px rgba(255, 79, 158, 0.84),
     0 0 0 4px rgba(255, 79, 158, 0.12),
     0 0 22px rgba(255, 79, 158, 0.24);
+}
+
+.cell.preview-fusion {
+  animation: fusionReady 720ms ease-in-out infinite;
+  box-shadow:
+    inset 0 0 0 3px var(--accent),
+    0 0 0 3px rgba(255, 209, 90, 0.14),
+    0 0 22px rgba(255, 209, 90, 0.46);
+}
+
+@keyframes fusionReady {
+  0%,
+  100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.3) saturate(1.2);
+  }
 }
 
 .cell.burst {
@@ -777,6 +921,64 @@ h2 {
   z-index: 2;
   overflow: visible;
   pointer-events: none;
+}
+
+.skill-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  overflow: visible;
+  pointer-events: none;
+  filter: drop-shadow(0 0 10px var(--fx-color));
+}
+
+.skill-overlay .skill-line {
+  fill: none;
+  stroke: var(--fx-color);
+  stroke-linecap: round;
+  opacity: 0;
+  filter: drop-shadow(0 0 7px var(--fx-color));
+  stroke-dasharray: 18 12;
+  animation: skillLine 640ms ease-out forwards;
+}
+
+.skill-overlay .skill-zone {
+  fill: color-mix(in srgb, var(--fx-color) 30%, transparent);
+  stroke: var(--fx-color);
+  stroke-width: 3;
+  opacity: 0;
+  filter: drop-shadow(0 0 8px var(--fx-color));
+  animation: skillZone 680ms ease-out forwards;
+}
+
+@keyframes skillLine {
+  0% {
+    opacity: 0;
+    stroke-dashoffset: 140;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes skillZone {
+  0% {
+    opacity: 0;
+    transform: scale(0.72);
+    transform-origin: center;
+  }
+  24% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.04);
+    transform-origin: center;
+  }
 }
 
 .board-wrap.impact .board {
@@ -957,6 +1159,44 @@ h2 {
     inset 0 0 0 1px rgba(185, 156, 221, 0.28),
     0 0 22px rgba(123, 211, 255, 0.08),
     0 4px 0 rgba(0, 0, 0, 0.24);
+}
+
+.hand.tetris-hand .swap-button {
+  display: none;
+}
+
+.tetris-controls {
+  display: none;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.tetris-controls.visible {
+  display: grid;
+}
+
+.tetris-button {
+  min-height: 52px;
+  border: 0;
+  border-radius: 6px;
+  background: rgba(49, 23, 87, 0.92);
+  color: var(--text);
+  font-size: 1.5rem;
+  font-weight: 900;
+  box-shadow:
+    inset 0 0 0 1px rgba(123, 211, 255, 0.38),
+    0 0 16px rgba(93, 168, 255, 0.12),
+    0 4px 0 rgba(0, 0, 0, 0.24);
+  cursor: pointer;
+}
+
+.tetris-button.drop {
+  background: linear-gradient(180deg, #77c7ff, #5d79ff);
+  color: #100023;
+}
+
+.tetris-button:active {
+  transform: translateY(2px);
 }
 
 .queue {

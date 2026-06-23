@@ -7,6 +7,41 @@ const BEATS = {
   scissors: "paper",
   paper: "rock",
 };
+const SPECIALS = {
+  rock: {
+    4: { id: "onyx", label: "Onix" },
+    5: { id: "gold", label: "Pépite d'or" },
+    6: { id: "diamond", label: "Diamant" },
+  },
+  paper: {
+    4: { id: "green-paper", label: "Feuille verte" },
+    5: { id: "bag", label: "Sac en plastique" },
+    6: { id: "money", label: "Liasse de billets" },
+  },
+  scissors: {
+    4: { id: "pruner", label: "Sécateur" },
+    5: { id: "saber", label: "Sabre" },
+    6: { id: "chainsaw", label: "Tronçonneuse" },
+  },
+};
+const SPECIAL_BY_ID = Object.fromEntries(
+  Object.entries(SPECIALS).flatMap(([type, tiers]) =>
+    Object.entries(tiers).map(([tier, special]) => [special.id, { ...special, type, tier: Number(tier) }]),
+  ),
+);
+const MATCH_DIRECTIONS = [
+  { dr: 0, dc: 1, orientation: "horizontal" },
+  { dr: 1, dc: 0, orientation: "vertical" },
+];
+const TETROMINOES = [
+  { id: "I", cells: [{ row: 0, col: 0 }, { row: 0, col: 1 }, { row: 0, col: 2 }, { row: 0, col: 3 }] },
+  { id: "O", cells: [{ row: 0, col: 0 }, { row: 0, col: 1 }, { row: 1, col: 0 }, { row: 1, col: 1 }] },
+  { id: "T", cells: [{ row: 0, col: 0 }, { row: 0, col: 1 }, { row: 0, col: 2 }, { row: 1, col: 1 }] },
+  { id: "L", cells: [{ row: 0, col: 0 }, { row: 1, col: 0 }, { row: 2, col: 0 }, { row: 2, col: 1 }] },
+  { id: "J", cells: [{ row: 0, col: 1 }, { row: 1, col: 1 }, { row: 2, col: 1 }, { row: 2, col: 0 }] },
+  { id: "S", cells: [{ row: 0, col: 1 }, { row: 0, col: 2 }, { row: 1, col: 0 }, { row: 1, col: 1 }] },
+  { id: "Z", cells: [{ row: 0, col: 0 }, { row: 0, col: 1 }, { row: 1, col: 1 }, { row: 1, col: 2 }] },
+];
 
 const LABELS = {
   rock: "Pierre",
@@ -35,11 +70,18 @@ const els = {
   currentPiece: document.querySelector("#currentPiece"),
   nextOne: document.querySelector("#nextPieceOne"),
   nextTwo: document.querySelector("#nextPieceTwo"),
+  handPanel: document.querySelector("#handPanel"),
   swap: document.querySelector("#swapButton"),
   home: document.querySelector("#homeButton"),
   restart: document.querySelector("#restartButton"),
   startPlacement: document.querySelector("#startPlacementButton"),
   startArcade: document.querySelector("#startArcadeButton"),
+  startTetris: document.querySelector("#startTetrisButton"),
+  tetrisControls: document.querySelector("#tetrisControls"),
+  tetrisLeft: document.querySelector("#tetrisLeftButton"),
+  tetrisRotate: document.querySelector("#tetrisRotateButton"),
+  tetrisRight: document.querySelector("#tetrisRightButton"),
+  tetrisDrop: document.querySelector("#tetrisDropButton"),
   modeTitle: document.querySelector("#modeTitle"),
   arcadeMeter: document.querySelector("#arcadeMeter"),
   rise: document.querySelector("#riseValue"),
@@ -71,11 +113,16 @@ const state = {
   previewKillKeys: new Set(),
   burstKeys: new Set(),
   newLineKeys: new Set(),
+  createdKeys: new Set(),
+  previewFusionKeys: new Set(),
+  lastAction: null,
+  fallingPiece: null,
 };
 
 let dragging = false;
 let dragTarget = null;
 let scrambleTimers = [];
+let tetrisTimer = null;
 
 function makeGrid() {
   return Array.from({ length: HEIGHT }, () => Array(WIDTH).fill(null));
@@ -96,6 +143,28 @@ function inBounds(row, col) {
 
 function sleep(ms) {
   return new Promise((resolve) => window.setTimeout(resolve, ms));
+}
+
+function isSpecial(tile) {
+  return Boolean(tile?.special);
+}
+
+function isBasic(tile) {
+  return Boolean(tile) && !isSpecial(tile);
+}
+
+function createBasicTile(type) {
+  return { type };
+}
+
+function createSpecialTile(type, tier) {
+  const special = SPECIALS[type][tier];
+  return { type, special: special.id, tier };
+}
+
+function tileLabel(tile) {
+  if (!tile) return "Case vide";
+  return isSpecial(tile) ? SPECIAL_BY_ID[tile.special].label : LABELS[tile.type];
 }
 
 function randomItem(items) {
@@ -216,11 +285,17 @@ function advancePiece() {
   ensureQueue();
 }
 
-function createSymbol(type) {
+function createSymbol(tileOrType) {
+  const tile = typeof tileOrType === "string" ? createBasicTile(tileOrType) : tileOrType;
+  const type = tile.type;
   const symbol = document.createElementNS(SVG_NS, "svg");
   symbol.setAttribute("viewBox", "0 0 64 64");
   symbol.setAttribute("aria-hidden", "true");
-  symbol.classList.add("symbol", type);
+  symbol.classList.add("symbol", isSpecial(tile) ? tile.special : type);
+
+  if (isSpecial(tile)) {
+    return createSpecialSymbol(symbol, tile);
+  }
 
   if (type === "rock") {
     symbol.append(
@@ -305,6 +380,78 @@ function createSymbol(type) {
   return symbol;
 }
 
+function createSpecialSymbol(symbol, tile) {
+  const light = "rgba(255,255,255,0.96)";
+  const shade = "rgba(20,0,35,0.3)";
+
+  if (tile.special === "onyx") {
+    symbol.append(
+      svgNode("path", { d: "M10 35 L22 12 L43 10 L56 31 L47 55 L21 57 Z", fill: light }),
+      svgNode("path", { d: "M22 12 L29 33 L10 35 M43 10 L36 33 L56 31 M21 57 L29 33 L47 55", fill: "none", stroke: shade, "stroke-width": "4" }),
+    );
+  }
+
+  if (tile.special === "gold") {
+    symbol.append(
+      svgNode("path", { d: "M10 37 L18 19 L37 13 L55 28 L49 49 L27 55 L12 48 Z", fill: light }),
+      svgNode("path", { d: "M27 22 L31 31 L41 34 L31 38 L27 47 L23 38 L14 34 L23 31 Z", fill: "none", stroke: shade, "stroke-width": "4", "stroke-linejoin": "round" }),
+    );
+  }
+
+  if (tile.special === "diamond") {
+    symbol.append(
+      svgNode("path", { d: "M32 7 L55 27 L32 58 L9 27 Z", fill: light }),
+      svgNode("path", { d: "M9 27 H55 M22 16 L32 58 L42 16 M9 27 L32 37 L55 27", fill: "none", stroke: shade, "stroke-width": "4", "stroke-linejoin": "round" }),
+    );
+  }
+
+  if (tile.special === "green-paper") {
+    symbol.append(
+      svgNode("path", { d: "M15 8 H42 L54 20 V56 H15 Z", fill: light }),
+      svgNode("path", { d: "M42 8 V21 H54 M24 33 H45 M34 24 V43", fill: "none", stroke: shade, "stroke-width": "5", "stroke-linecap": "round", "stroke-linejoin": "round" }),
+    );
+  }
+
+  if (tile.special === "bag") {
+    symbol.append(
+      svgNode("path", { d: "M14 25 H50 L54 55 H10 Z", fill: light }),
+      svgNode("path", { d: "M23 25 C23 10 41 10 41 25 M20 36 H44 M20 45 H44", fill: "none", stroke: shade, "stroke-width": "5", "stroke-linecap": "round" }),
+    );
+  }
+
+  if (tile.special === "money") {
+    symbol.append(
+      svgNode("rect", { x: "10", y: "19", width: "44", height: "30", rx: "3", fill: light }),
+      svgNode("path", { d: "M16 13 H50 V43 M15 29 H49 M31 25 C25 25 25 37 32 37 C39 37 39 29 33 29", fill: "none", stroke: shade, "stroke-width": "4", "stroke-linecap": "round", "stroke-linejoin": "round" }),
+    );
+  }
+
+  if (tile.special === "pruner") {
+    symbol.append(
+      svgNode("circle", { cx: "19", cy: "46", r: "8", fill: "none", stroke: light, "stroke-width": "6" }),
+      svgNode("circle", { cx: "45", cy: "46", r: "8", fill: "none", stroke: light, "stroke-width": "6" }),
+      svgNode("path", { d: "M25 39 L49 12 M39 39 L15 12", fill: "none", stroke: light, "stroke-width": "7", "stroke-linecap": "round" }),
+      svgNode("path", { d: "M27 29 L37 29", fill: "none", stroke: shade, "stroke-width": "4", "stroke-linecap": "round" }),
+    );
+  }
+
+  if (tile.special === "saber") {
+    symbol.append(
+      svgNode("path", { d: "M15 51 C29 38 41 24 52 9 C52 27 42 43 22 55 Z", fill: light }),
+      svgNode("path", { d: "M15 52 L28 39 M19 43 L31 55", fill: "none", stroke: shade, "stroke-width": "5", "stroke-linecap": "round" }),
+    );
+  }
+
+  if (tile.special === "chainsaw") {
+    symbol.append(
+      svgNode("path", { d: "M9 28 H42 L56 36 L42 44 H9 Z", fill: light }),
+      svgNode("path", { d: "M39 28 L55 18 V51 L39 44 M14 23 V14 H29 V23 M22 33 A6 6 0 1 0 22.1 33", fill: "none", stroke: shade, "stroke-width": "5", "stroke-linecap": "round", "stroke-linejoin": "round" }),
+    );
+  }
+
+  return symbol;
+}
+
 function svgNode(name, attrs) {
   const node = document.createElementNS(SVG_NS, name);
   for (const [key, value] of Object.entries(attrs)) {
@@ -324,27 +471,49 @@ function setPieceElement(element, type) {
   element.append(createSymbol(type));
 }
 
+function getFallingCells(piece = state.fallingPiece) {
+  if (!piece) return [];
+  return piece.cells.map((cell) => ({ row: piece.row + cell.row, col: piece.col + cell.col }));
+}
+
+function getFallingTileMap() {
+  const tiles = new Map();
+  if (state.mode !== "tetris" || !state.fallingPiece) return tiles;
+  for (const cell of getFallingCells()) {
+    if (inBounds(cell.row, cell.col)) {
+      tiles.set(keyOf(cell.row, cell.col), createBasicTile(state.fallingPiece.type));
+    }
+  }
+  return tiles;
+}
+
 function render() {
   els.board.textContent = "";
+  const fallingTiles = getFallingTileMap();
 
   for (let row = 0; row < HEIGHT; row += 1) {
     for (let col = 0; col < WIDTH; col += 1) {
       const cell = document.createElement("button");
       const key = keyOf(row, col);
       const value = state.grid[row][col];
+      const fallingTile = fallingTiles.get(key);
       const isPreviewTarget =
         state.previewTarget && state.previewTarget.row === row && state.previewTarget.col === col;
-      const shownType = value?.type ?? (isPreviewTarget ? state.current : null);
+      const shownTile = value ?? fallingTile ?? (isPreviewTarget ? createBasicTile(state.current) : null);
 
       cell.type = "button";
       cell.className = "cell";
       cell.dataset.row = row;
       cell.dataset.col = col;
-      cell.setAttribute("aria-label", shownType ? LABELS[shownType] : "Case vide");
+      cell.setAttribute("aria-label", tileLabel(shownTile));
 
-      if (shownType) {
-        cell.classList.add(shownType);
-        cell.append(createSymbol(shownType));
+      if (shownTile) {
+        if (isSpecial(shownTile)) {
+          cell.classList.add("special", shownTile.special, `tier-${shownTile.tier}`);
+        } else {
+          cell.classList.add(shownTile.type);
+        }
+        cell.append(createSymbol(shownTile));
       } else {
         cell.classList.add("empty");
       }
@@ -353,8 +522,16 @@ function render() {
         cell.classList.add("preview-target", "ghost");
       }
 
+      if (fallingTile) {
+        cell.classList.add("falling-tile");
+      }
+
       if (state.previewKillKeys.has(key)) {
         cell.classList.add("preview-kill");
+      }
+
+      if (state.previewFusionKeys.has(key)) {
+        cell.classList.add("preview-fusion");
       }
 
       if (state.burstKeys.has(key)) {
@@ -365,19 +542,27 @@ function render() {
         cell.classList.add("new-line");
       }
 
+      if (state.createdKeys.has(key)) {
+        cell.classList.add("created");
+      }
+
       els.board.append(cell);
     }
   }
 
-  setPieceElement(els.currentPiece, state.current);
+  const displayedCurrent = state.mode === "tetris" && state.fallingPiece ? state.fallingPiece.type : state.current;
+  setPieceElement(els.currentPiece, displayedCurrent);
   setPieceElement(els.nextOne, state.queue[0]);
   setPieceElement(els.nextTwo, state.queue[1]);
 
   els.score.textContent = state.score.toLocaleString("fr-FR");
   els.combo.textContent = state.combo;
   els.shield.textContent = state.shields;
-  els.modeTitle.textContent = state.mode === "placement" ? "Placement" : "Arcade";
+  els.modeTitle.textContent =
+    state.mode === "placement" ? "Placement" : state.mode === "arcade" ? "Arcade" : "Tetris Arcade";
   els.arcadeMeter.classList.toggle("visible", state.mode === "arcade");
+  els.tetrisControls.classList.toggle("visible", state.mode === "tetris");
+  els.handPanel.classList.toggle("tetris-hand", state.mode === "tetris");
   els.rise.textContent = state.riseCountdown;
   els.revive.disabled = state.revivesUsed >= 1;
   els.revive.textContent = state.revivesUsed >= 1 ? "Revive utilisé" : "Revive";
@@ -397,7 +582,16 @@ function colorForType(type) {
 }
 
 function triggerImpact(detonation, wave) {
-  const removedKeys = [...detonation.removeKeys];
+  if (detonation.kind === "power") {
+    for (const activation of detonation.activations) {
+      spawnSkillEffect(activation);
+    }
+  }
+
+  const removedKeys = [...detonation.removeKeys].filter((key) => {
+    const { row, col } = fromKey(key);
+    return Boolean(state.grid[row][col]);
+  });
   if (!removedKeys.length) {
     return;
   }
@@ -410,7 +604,8 @@ function triggerImpact(detonation, wave) {
   }, 420);
 
   if (navigator.vibrate) {
-    navigator.vibrate(wave >= 3 ? [18, 24, 28] : 18);
+    const isPower = detonation.kind === "power";
+    navigator.vibrate(isPower ? [22, 30, 38] : wave >= 3 ? [18, 24, 28] : 18);
   }
 
   const firstCell = fromKey(removedKeys[0]);
@@ -494,95 +689,372 @@ function spawnExplosion(cell, color, wave) {
   }, 780);
 }
 
-function findClusters(grid) {
-  const visited = Array.from({ length: HEIGHT }, () => Array(WIDTH).fill(false));
-  const clusters = [];
-  const directions = [
-    [1, 0],
-    [-1, 0],
-    [0, 1],
-    [0, -1],
-  ];
+function cellPoint(row, col) {
+  const cell = els.board.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+  if (!cell) return null;
+
+  const layerRect = els.effectsLayer.getBoundingClientRect();
+  const rect = cell.getBoundingClientRect();
+  return {
+    left: rect.left - layerRect.left,
+    top: rect.top - layerRect.top,
+    right: rect.right - layerRect.left,
+    bottom: rect.bottom - layerRect.top,
+    x: rect.left - layerRect.left + rect.width / 2,
+    y: rect.top - layerRect.top + rect.height / 2,
+  };
+}
+
+function createSkillOverlay(color) {
+  const layerRect = els.effectsLayer.getBoundingClientRect();
+  const overlay = document.createElementNS(SVG_NS, "svg");
+  overlay.classList.add("skill-overlay");
+  overlay.setAttribute("viewBox", `0 0 ${layerRect.width} ${layerRect.height}`);
+  overlay.setAttribute("width", `${layerRect.width}`);
+  overlay.setAttribute("height", `${layerRect.height}`);
+  overlay.style.setProperty("--fx-color", color);
+  els.effectsLayer.append(overlay);
+  window.setTimeout(() => overlay.remove(), 760);
+  return overlay;
+}
+
+function addSkillLine(overlay, start, end, width = 8) {
+  if (!start || !end) return;
+  overlay.append(
+    svgNode("line", {
+      x1: start.x,
+      y1: start.y,
+      x2: end.x,
+      y2: end.y,
+      class: "skill-line",
+      "stroke-width": width,
+    }),
+  );
+}
+
+function addSkillZone(overlay, topRow, bottomRow, leftCol, rightCol) {
+  const topLeft = cellPoint(Math.max(0, topRow), Math.max(0, leftCol));
+  const bottomRight = cellPoint(Math.min(HEIGHT - 1, bottomRow), Math.min(WIDTH - 1, rightCol));
+  if (!topLeft || !bottomRight) return;
+  overlay.append(
+    svgNode("rect", {
+      x: topLeft.left,
+      y: topLeft.top,
+      width: bottomRight.right - topLeft.left,
+      height: bottomRight.bottom - topLeft.top,
+      rx: "8",
+      class: "skill-zone",
+    }),
+  );
+}
+
+function diagonalEnds(row, col, dr, dc) {
+  let startRow = row;
+  let startCol = col;
+  let endRow = row;
+  let endCol = col;
+
+  while (inBounds(startRow - dr, startCol - dc)) {
+    startRow -= dr;
+    startCol -= dc;
+  }
+  while (inBounds(endRow + dr, endCol + dc)) {
+    endRow += dr;
+    endCol += dc;
+  }
+
+  return [cellPoint(startRow, startCol), cellPoint(endRow, endCol)];
+}
+
+function spawnSkillEffect(activation) {
+  const { row, col } = activation.specialCell;
+  const { special, type } = activation.special;
+  const overlay = createSkillOverlay(colorForType(type));
+
+  if (special === "onyx") {
+    addSkillLine(overlay, ...diagonalEnds(row, col, 1, 1), 9);
+    addSkillLine(overlay, ...diagonalEnds(row, col, 1, -1), 9);
+  }
+
+  if (special === "green-paper") {
+    addSkillZone(overlay, row - 1, row + 1, col - 1, col + 1);
+  }
+
+  if (special === "pruner") {
+    addSkillLine(overlay, cellPoint(row, 0), cellPoint(row, WIDTH - 1), 10);
+    addSkillLine(overlay, cellPoint(0, col), cellPoint(HEIGHT - 1, col), 10);
+  }
+
+  if (special === "gold") {
+    const center = cellPoint(row, col);
+    const up = cellPoint(Math.max(0, row - 2), col);
+    const right = cellPoint(row, Math.min(WIDTH - 1, col + 2));
+    const down = cellPoint(Math.min(HEIGHT - 1, row + 2), col);
+    const left = cellPoint(row, Math.max(0, col - 2));
+    if (center && up && right && down && left) {
+      overlay.append(
+        svgNode("polygon", {
+          points: `${up.x},${up.y} ${right.x},${right.y} ${down.x},${down.y} ${left.x},${left.y}`,
+          class: "skill-zone",
+        }),
+      );
+    }
+  }
+
+  if (special === "bag") {
+    if (activation.orientation === "horizontal") {
+      addSkillZone(overlay, row - 1, row + 1, col - 1, col + 2);
+    } else {
+      addSkillZone(overlay, row - 1, row + 2, col - 1, col + 1);
+    }
+  }
+
+  if (special === "saber") {
+    if (activation.orientation === "horizontal") {
+      addSkillZone(overlay, row, row < HEIGHT - 1 ? row + 1 : row - 1, 0, WIDTH - 1);
+    } else {
+      addSkillZone(overlay, 0, HEIGHT - 1, col, col < WIDTH - 1 ? col + 1 : col - 1);
+    }
+  }
+
+  if (["diamond", "money", "chainsaw"].includes(special)) {
+    addSkillZone(overlay, 0, HEIGHT - 1, 0, WIDTH - 1);
+  }
+}
+
+function sameCell(first, second) {
+  return Boolean(first && second && first.row === second.row && first.col === second.col);
+}
+
+function containsCell(cells, cell) {
+  return cells.some((candidate) => sameCell(candidate, cell));
+}
+
+function findBasicRuns(grid) {
+  const runs = [];
+
+  for (const direction of MATCH_DIRECTIONS) {
+    for (let row = 0; row < HEIGHT; row += 1) {
+      for (let col = 0; col < WIDTH; col += 1) {
+        const tile = grid[row][col];
+        const previousRow = row - direction.dr;
+        const previousCol = col - direction.dc;
+        const previous = inBounds(previousRow, previousCol) ? grid[previousRow][previousCol] : null;
+
+        if (!isBasic(tile) || (isBasic(previous) && previous.type === tile.type)) {
+          continue;
+        }
+
+        const cells = [];
+        let nextRow = row;
+        let nextCol = col;
+
+        while (inBounds(nextRow, nextCol)) {
+          const next = grid[nextRow][nextCol];
+          if (!isBasic(next) || next.type !== tile.type) {
+            break;
+          }
+          cells.push({ row: nextRow, col: nextCol });
+          nextRow += direction.dr;
+          nextCol += direction.dc;
+        }
+
+        if (cells.length >= CHARGE_SIZE) {
+          runs.push({ type: tile.type, cells, orientation: direction.orientation });
+        }
+      }
+    }
+  }
+
+  return runs;
+}
+
+function selectBasicRuns(grid, lastAction) {
+  const runs = findBasicRuns(grid);
+  const occupied = new Set();
+  const selected = [];
+
+  runs.sort((first, second) => {
+    const firstHasAction = containsCell(first.cells, lastAction) ? 1 : 0;
+    const secondHasAction = containsCell(second.cells, lastAction) ? 1 : 0;
+    if (firstHasAction !== secondHasAction) return secondHasAction - firstHasAction;
+    if (first.cells.length !== second.cells.length) return second.cells.length - first.cells.length;
+    return first.orientation.localeCompare(second.orientation);
+  });
+
+  for (const run of runs) {
+    const keys = run.cells.map((cell) => keyOf(cell.row, cell.col));
+    if (keys.some((key) => occupied.has(key))) {
+      continue;
+    }
+    for (const key of keys) occupied.add(key);
+    selected.push(run);
+  }
+
+  return selected;
+}
+
+function findSpecialActivations(grid, lastAction) {
+  const activations = [];
 
   for (let row = 0; row < HEIGHT; row += 1) {
     for (let col = 0; col < WIDTH; col += 1) {
-      const start = grid[row][col];
-      if (!start || visited[row][col]) {
+      const special = grid[row][col];
+      if (!isSpecial(special)) {
         continue;
       }
 
-      const cells = [];
-      const queue = [{ row, col }];
-      visited[row][col] = true;
+      const candidates = [];
+      for (const direction of MATCH_DIRECTIONS) {
+        for (let specialIndex = 0; specialIndex < 3; specialIndex += 1) {
+          const startRow = row - specialIndex * direction.dr;
+          const startCol = col - specialIndex * direction.dc;
+          const cells = [0, 1, 2].map((offset) => ({
+            row: startRow + offset * direction.dr,
+            col: startCol + offset * direction.dc,
+          }));
 
-      while (queue.length) {
-        const current = queue.shift();
-        cells.push(current);
+          if (!cells.every((cell) => inBounds(cell.row, cell.col))) {
+            continue;
+          }
 
-        for (const [dr, dc] of directions) {
-          const nextRow = current.row + dr;
-          const nextCol = current.col + dc;
-          const next = inBounds(nextRow, nextCol) ? grid[nextRow][nextCol] : null;
-
-          if (next && !visited[nextRow][nextCol] && next.type === start.type) {
-            visited[nextRow][nextCol] = true;
-            queue.push({ row: nextRow, col: nextCol });
+          const matchingBasics = cells.filter((_, index) => index !== specialIndex);
+          if (
+            matchingBasics.every((cell) => {
+              const tile = grid[cell.row][cell.col];
+              return isBasic(tile) && tile.type === special.type;
+            })
+          ) {
+            candidates.push({
+              special,
+              specialCell: { row, col },
+              cells,
+              orientation: direction.orientation,
+            });
           }
         }
       }
 
-      clusters.push({ type: start.type, cells });
-    }
-  }
-
-  return clusters;
-}
-
-function findDetonations(grid) {
-  const clusters = findClusters(grid);
-  const removeKeys = new Set();
-  const detonations = [];
-  const directions = [
-    [1, 0],
-    [-1, 0],
-    [0, 1],
-    [0, -1],
-  ];
-
-  for (const cluster of clusters) {
-    if (cluster.cells.length < CHARGE_SIZE) {
-      continue;
-    }
-
-    const victimKeys = new Set();
-    const victimType = BEATS[cluster.type];
-
-    for (const cell of cluster.cells) {
-      for (const [dr, dc] of directions) {
-        const row = cell.row + dr;
-        const col = cell.col + dc;
-        const neighbor = inBounds(row, col) ? grid[row][col] : null;
-
-        if (neighbor?.type === victimType) {
-          victimKeys.add(keyOf(row, col));
-        }
+      if (candidates.length) {
+        candidates.sort(
+          (first, second) =>
+            Number(containsCell(second.cells, lastAction)) - Number(containsCell(first.cells, lastAction)),
+        );
+        activations.push(candidates[0]);
       }
     }
+  }
 
-    if (victimKeys.size > 0) {
-      const clusterKeys = cluster.cells.map((cell) => keyOf(cell.row, cell.col));
-      for (const key of clusterKeys) removeKeys.add(key);
-      for (const key of victimKeys) removeKeys.add(key);
-      detonations.push({
-        type: cluster.type,
-        size: cluster.cells.length,
-        clusterKeys,
-        victimKeys: [...victimKeys],
-      });
+  return activations;
+}
+
+function addCell(keys, row, col) {
+  if (inBounds(row, col)) {
+    keys.add(keyOf(row, col));
+  }
+}
+
+function addRow(keys, row) {
+  for (let col = 0; col < WIDTH; col += 1) addCell(keys, row, col);
+}
+
+function addColumn(keys, col) {
+  for (let row = 0; row < HEIGHT; row += 1) addCell(keys, row, col);
+}
+
+function addSpecialEffectCells(keys, grid, activation) {
+  const { row, col } = activation.specialCell;
+  const { special, type } = activation.special;
+
+  for (const cell of activation.cells) addCell(keys, cell.row, cell.col);
+
+  if (special === "onyx") {
+    for (let offset = -Math.max(WIDTH, HEIGHT); offset <= Math.max(WIDTH, HEIGHT); offset += 1) {
+      addCell(keys, row + offset, col + offset);
+      addCell(keys, row + offset, col - offset);
     }
   }
 
-  return { removeKeys, detonations };
+  if (special === "green-paper") {
+    for (let dr = -1; dr <= 1; dr += 1) {
+      for (let dc = -1; dc <= 1; dc += 1) addCell(keys, row + dr, col + dc);
+    }
+  }
+
+  if (special === "pruner") {
+    addRow(keys, row);
+    addColumn(keys, col);
+  }
+
+  if (special === "gold") {
+    for (let dr = -2; dr <= 2; dr += 1) {
+      for (let dc = -2; dc <= 2; dc += 1) {
+        if (Math.abs(dr) + Math.abs(dc) <= 2) addCell(keys, row + dr, col + dc);
+      }
+    }
+  }
+
+  if (special === "bag") {
+    const rowRange = activation.orientation === "horizontal" ? [-1, 0, 1] : [-1, 0, 1, 2];
+    const colRange = activation.orientation === "horizontal" ? [-1, 0, 1, 2] : [-1, 0, 1];
+    for (const dr of rowRange) {
+      for (const dc of colRange) addCell(keys, row + dr, col + dc);
+    }
+  }
+
+  if (special === "saber") {
+    if (activation.orientation === "horizontal") {
+      addRow(keys, row);
+      addRow(keys, row < HEIGHT - 1 ? row + 1 : row - 1);
+    } else {
+      addColumn(keys, col);
+      addColumn(keys, col < WIDTH - 1 ? col + 1 : col - 1);
+    }
+  }
+
+  if (["diamond", "money", "chainsaw"].includes(special)) {
+    const victimType = BEATS[type];
+    for (let targetRow = 0; targetRow < HEIGHT; targetRow += 1) {
+      for (let targetCol = 0; targetCol < WIDTH; targetCol += 1) {
+        const target = grid[targetRow][targetCol];
+        if (target?.type === victimType) addCell(keys, targetRow, targetCol);
+      }
+    }
+  }
+}
+
+function findResolutionWave(grid, lastAction) {
+  const activations = findSpecialActivations(grid, lastAction);
+  if (activations.length) {
+    const removeKeys = new Set();
+    for (const activation of activations) addSpecialEffectCells(removeKeys, grid, activation);
+    return { kind: "power", removeKeys, activations, fusions: [], creations: new Map() };
+  }
+
+  const runs = selectBasicRuns(grid, lastAction);
+  if (!runs.length) {
+    return null;
+  }
+
+  const removeKeys = new Set();
+  const creations = new Map();
+  const fusions = [];
+
+  for (const run of runs) {
+    for (const cell of run.cells) addCell(removeKeys, cell.row, cell.col);
+
+    if (run.cells.length >= 4) {
+      const tier = Math.min(run.cells.length, 6);
+      const anchor = containsCell(run.cells, lastAction)
+        ? lastAction
+        : run.cells[Math.floor((run.cells.length - 1) / 2)];
+      const tile = createSpecialTile(run.type, tier);
+      creations.set(keyOf(anchor.row, anchor.col), tile);
+      fusions.push({ ...run, tier, anchor, tile });
+    }
+  }
+
+  return { kind: "match", removeKeys, activations: [], fusions, creations };
 }
 
 function applyGravity(grid = state.grid) {
@@ -600,76 +1072,105 @@ function applyGravity(grid = state.grid) {
   }
 }
 
-async function resolveBoard({ animate = true } = {}) {
-  let waves = 0;
-  let chainScore = 0;
-  const removedTypes = new Set();
-
-  while (waves < 20) {
-    const detonation = findDetonations(state.grid);
-    if (detonation.detonations.length === 0) {
-      break;
-    }
-
-    waves += 1;
-    state.combo = waves;
-
-    const removedCells = [...detonation.removeKeys]
-      .map(fromKey)
-      .filter(({ row, col }) => state.grid[row][col]);
-
-    for (const { row, col } of removedCells) {
-      removedTypes.add(state.grid[row][col].type);
-    }
-
-    const blockPoints = removedCells.length * 10 * waves;
-    const sizeBonus = detonation.detonations.reduce((sum, item) => {
-      if (item.size >= 7) return sum + 120;
-      if (item.size >= 5) return sum + 50;
-      return sum;
-    }, 0);
-
-    state.score += blockPoints + sizeBonus;
-    chainScore += blockPoints + sizeBonus;
-
-    if (animate) {
-      state.burstKeys = detonation.removeKeys;
-      render();
-      triggerImpact(detonation, waves);
-      showCombo(`x${waves}`);
-      await sleep(280);
-    }
-
-    for (const { row, col } of removedCells) {
-      state.grid[row][col] = null;
-    }
-
-    applyGravity();
-
-    if (animate) {
-      state.burstKeys = new Set();
-      render();
-      await sleep(160);
+function findTileKeys(tiles) {
+  const keys = new Set();
+  const tileSet = new Set(tiles);
+  for (let row = 0; row < HEIGHT; row += 1) {
+    for (let col = 0; col < WIDTH; col += 1) {
+      if (tileSet.has(state.grid[row][col])) {
+        keys.add(keyOf(row, col));
+      }
     }
   }
+  return keys;
+}
+
+async function resolveCascade(chain, animate) {
+  if (chain.waves >= 20) return;
+
+  const resolution = findResolutionWave(state.grid, state.lastAction);
+  if (!resolution) return;
+
+  chain.waves += 1;
+  state.combo = chain.waves;
+  const removedCells = [...resolution.removeKeys]
+    .map(fromKey)
+    .filter(({ row, col }) => state.grid[row][col]);
+
+  for (const { row, col } of removedCells) {
+    chain.removedTypes.add(state.grid[row][col].type);
+  }
+
+  const blockPoints = removedCells.length * 10 * chain.waves;
+  const fusionBonus = resolution.fusions.reduce((sum, fusion) => sum + ({ 4: 60, 5: 150, 6: 280 }[fusion.tier]), 0);
+  const powerBonus = resolution.activations.reduce(
+    (sum, activation) => sum + ({ 4: 80, 5: 160, 6: 300 }[activation.special.tier]),
+    0,
+  );
+  const waveScore = blockPoints + fusionBonus + powerBonus;
+  state.score += waveScore;
+  chain.score += waveScore;
+
+  if (animate) {
+    state.burstKeys = resolution.removeKeys;
+    render();
+    triggerImpact(resolution, chain.waves);
+    const label =
+      resolution.kind === "power"
+        ? SPECIAL_BY_ID[resolution.activations[0].special.special].label
+        : resolution.fusions.length
+          ? `Fusion ${SPECIAL_BY_ID[resolution.fusions[0].tile.special].label}`
+          : `x${chain.waves}`;
+    showCombo(label);
+    await sleep(300);
+  }
+
+  for (const { row, col } of removedCells) {
+    state.grid[row][col] = null;
+  }
+
+  for (const [key, tile] of resolution.creations) {
+    const { row, col } = fromKey(key);
+    state.grid[row][col] = tile;
+  }
+
+  applyGravity();
+  state.createdKeys = findTileKeys([...resolution.creations.values()]);
+  state.lastAction = null;
+
+  if (animate) {
+    state.burstKeys = new Set();
+    render();
+    await sleep(220);
+    state.createdKeys = new Set();
+  } else {
+    state.createdKeys = new Set();
+  }
+
+  await resolveCascade(chain, animate);
+}
+
+async function resolveBoard({ animate = true } = {}) {
+  const chain = { waves: 0, score: 0, removedTypes: new Set() };
+  await resolveCascade(chain, animate);
 
   let shifumiBonus = 0;
-  if (waves > 0 && removedTypes.size === TYPES.length) {
-    shifumiBonus = Math.max(150, chainScore);
+  if (chain.waves > 0 && chain.removedTypes.size === TYPES.length) {
+    shifumiBonus = Math.max(150, Math.round(chain.score * 0.6));
     state.score += shifumiBonus;
     showCombo(`Shifumi +${shifumiBonus}`);
     if (animate) await sleep(520);
   }
 
-  if (waves >= 3 || shifumiBonus > 0) {
+  if (chain.waves >= 3 || shifumiBonus > 0) {
     state.shields = Math.min(3, state.shields + 1);
   }
 
-  state.combo = waves;
-  state.bestCombo = Math.max(state.bestCombo, waves);
+  state.combo = chain.waves;
+  state.bestCombo = Math.max(state.bestCombo, chain.waves);
   render();
 
-  return { waves, score: chainScore + shifumiBonus };
+  return { waves: chain.waves, score: chain.score + shifumiBonus };
 }
 
 function getArcadeInterval() {
@@ -746,14 +1247,209 @@ function clearBottomRows(count) {
   applyGravity();
 }
 
+function clearTetrisTimer() {
+  if (tetrisTimer) {
+    window.clearTimeout(tetrisTimer);
+    tetrisTimer = null;
+  }
+}
+
+function getTetrisDropDelay() {
+  return Math.max(280, 760 - Math.floor(state.moves / 5) * 45);
+}
+
+function normalizeTetromino(cells) {
+  const minRow = Math.min(...cells.map((cell) => cell.row));
+  const minCol = Math.min(...cells.map((cell) => cell.col));
+  return cells.map((cell) => ({ row: cell.row - minRow, col: cell.col - minCol }));
+}
+
+function canPlaceTetromino(piece, row = piece.row, col = piece.col, cells = piece.cells) {
+  return cells.every((cell) => {
+    const targetRow = row + cell.row;
+    const targetCol = col + cell.col;
+    return inBounds(targetRow, targetCol) && !state.grid[targetRow][targetCol];
+  });
+}
+
+function spawnTetromino() {
+  const template = randomItem(TETROMINOES);
+  const cells = template.cells.map((cell) => ({ ...cell }));
+  const width = Math.max(...cells.map((cell) => cell.col)) + 1;
+  const piece = {
+    id: template.id,
+    type: state.current,
+    cells,
+    row: 0,
+    col: Math.floor((WIDTH - width) / 2),
+  };
+
+  if (!canPlaceTetromino(piece)) {
+    endGame("Les pièces atteignent le haut du plateau.");
+    return false;
+  }
+
+  state.fallingPiece = piece;
+  advancePiece();
+  return true;
+}
+
+function moveTetromino(rowDelta, colDelta) {
+  const piece = state.fallingPiece;
+  if (!piece || !canPlaceTetromino(piece, piece.row + rowDelta, piece.col + colDelta)) {
+    return false;
+  }
+
+  piece.row += rowDelta;
+  piece.col += colDelta;
+  return true;
+}
+
+function rotateTetromino() {
+  const piece = state.fallingPiece;
+  if (!piece || piece.id === "O") {
+    return false;
+  }
+
+  const rotated = normalizeTetromino(piece.cells.map((cell) => ({ row: cell.col, col: -cell.row })));
+  for (const kick of [0, -1, 1, -2, 2]) {
+    if (canPlaceTetromino(piece, piece.row, piece.col + kick, rotated)) {
+      piece.cells = rotated;
+      piece.col += kick;
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function scheduleTetrisDrop() {
+  clearTetrisTimer();
+  if (state.mode !== "tetris" || state.gameOver || !state.fallingPiece) {
+    return;
+  }
+
+  tetrisTimer = window.setTimeout(async () => {
+    await tetrisTick();
+  }, getTetrisDropDelay());
+}
+
+async function clearTetrisLines() {
+  const fullRows = [];
+  for (let row = 0; row < HEIGHT; row += 1) {
+    if (state.grid[row].every(Boolean)) {
+      fullRows.push(row);
+    }
+  }
+
+  if (!fullRows.length) {
+    return;
+  }
+
+  const removeKeys = new Set();
+  for (const row of fullRows) {
+    for (let col = 0; col < WIDTH; col += 1) {
+      removeKeys.add(keyOf(row, col));
+    }
+  }
+
+  state.score += fullRows.length * 100;
+  state.burstKeys = removeKeys;
+  render();
+  triggerImpact({ kind: "line", removeKeys, activations: [] }, 1);
+  showCombo(fullRows.length > 1 ? `${fullRows.length} Lignes` : "Ligne");
+  await sleep(260);
+
+  for (const row of fullRows) {
+    state.grid[row] = Array(WIDTH).fill(null);
+  }
+  applyGravity();
+  state.burstKeys = new Set();
+  render();
+  await sleep(150);
+}
+
+async function lockTetromino() {
+  const piece = state.fallingPiece;
+  if (!piece) {
+    return;
+  }
+
+  clearTetrisTimer();
+  state.locked = true;
+  for (const cell of getFallingCells(piece)) {
+    state.grid[cell.row][cell.col] = createBasicTile(piece.type);
+  }
+  state.fallingPiece = null;
+  state.lastAction = null;
+  state.moves += 1;
+  render();
+
+  await sleep(80);
+  await clearTetrisLines();
+  await resolveBoard();
+
+  if (!state.gameOver && spawnTetromino()) {
+    state.locked = false;
+    render();
+    scheduleTetrisDrop();
+  }
+}
+
+async function tetrisTick() {
+  if (state.mode !== "tetris" || state.gameOver || state.locked) {
+    scheduleTetrisDrop();
+    return;
+  }
+
+  if (moveTetromino(1, 0)) {
+    render();
+    scheduleTetrisDrop();
+  } else {
+    await lockTetromino();
+  }
+}
+
+function moveTetrisSideways(delta) {
+  if (state.mode !== "tetris" || state.locked || state.gameOver) {
+    return;
+  }
+
+  if (moveTetromino(0, delta)) {
+    render();
+  }
+}
+
+function rotateTetris() {
+  if (state.mode !== "tetris" || state.locked || state.gameOver) {
+    return;
+  }
+
+  if (rotateTetromino()) {
+    render();
+  }
+}
+
+async function hardDropTetromino() {
+  if (state.mode !== "tetris" || state.locked || state.gameOver) {
+    return;
+  }
+
+  while (moveTetromino(1, 0)) {
+  }
+  render();
+  await lockTetromino();
+}
+
 async function placeAt(row, col) {
-  if (state.locked || state.gameOver || !inBounds(row, col) || state.grid[row][col]) {
+  if (state.mode === "tetris" || state.locked || state.gameOver || !inBounds(row, col) || state.grid[row][col]) {
     return;
   }
 
   state.locked = true;
   clearPreview();
-  state.grid[row][col] = { type: state.current };
+  state.grid[row][col] = createBasicTile(state.current);
+  state.lastAction = { row, col };
   advancePiece();
   state.moves += 1;
   render();
@@ -781,24 +1477,26 @@ async function placeAt(row, col) {
 }
 
 function previewAt(row, col) {
-  if (state.locked || state.gameOver || !inBounds(row, col) || state.grid[row][col]) {
+  if (state.mode === "tetris" || state.locked || state.gameOver || !inBounds(row, col) || state.grid[row][col]) {
     clearPreview();
     render();
     return;
   }
 
   const previewGrid = cloneGrid(state.grid);
-  previewGrid[row][col] = { type: state.current };
-  const detonation = findDetonations(previewGrid);
+  previewGrid[row][col] = createBasicTile(state.current);
+  const resolution = findResolutionWave(previewGrid, { row, col });
 
   state.previewTarget = { row, col };
-  state.previewKillKeys = detonation.removeKeys;
+  state.previewKillKeys = resolution?.removeKeys ?? new Set();
+  state.previewFusionKeys = new Set(resolution?.creations?.keys() ?? []);
   render();
 }
 
 function clearPreview() {
   state.previewTarget = null;
   state.previewKillKeys = new Set();
+  state.previewFusionKeys = new Set();
 }
 
 function cellFromEventTarget(target) {
@@ -822,6 +1520,8 @@ function showHome() {
 
   state.screen = "home";
   state.gameOver = true;
+  state.fallingPiece = null;
+  clearTetrisTimer();
   clearPreview();
   els.effectsLayer.textContent = "";
   els.modal.classList.add("hidden");
@@ -843,6 +1543,7 @@ function startGame(mode) {
 }
 
 function endGame(reason) {
+  clearTetrisTimer();
   state.gameOver = true;
   state.locked = false;
   clearPreview();
@@ -866,6 +1567,15 @@ async function revive() {
   await sleep(260);
   await resolveBoard();
 
+  if (state.mode === "tetris") {
+    if (!state.gameOver && spawnTetromino()) {
+      state.locked = false;
+      render();
+      scheduleTetrisDrop();
+    }
+    return;
+  }
+
   if (!hasEmptyCell()) {
     endGame("Plus aucune case libre.");
     return;
@@ -876,7 +1586,7 @@ async function revive() {
 }
 
 function swapWithNext() {
-  if (state.locked || state.gameOver) {
+  if (state.mode === "tetris" || state.locked || state.gameOver) {
     return;
   }
 
@@ -888,6 +1598,7 @@ function swapWithNext() {
 }
 
 function newGame() {
+  clearTetrisTimer();
   state.grid = makeGrid();
   state.score = 0;
   state.combo = 0;
@@ -904,11 +1615,21 @@ function newGame() {
   state.revivesUsed = 0;
   state.burstKeys = new Set();
   state.newLineKeys = new Set();
+  state.createdKeys = new Set();
+  state.previewFusionKeys = new Set();
+  state.lastAction = null;
+  state.fallingPiece = null;
   clearPreview();
   els.effectsLayer.textContent = "";
   els.boardWrap.classList.remove("impact", "impact-heavy");
   els.modal.classList.add("hidden");
+  if (state.mode === "tetris") {
+    spawnTetromino();
+  }
   render();
+  if (state.mode === "tetris" && !state.gameOver) {
+    scheduleTetrisDrop();
+  }
 }
 
 els.board.addEventListener("click", (event) => {
@@ -934,7 +1655,7 @@ els.board.addEventListener("pointerleave", () => {
 });
 
 els.currentPiece.addEventListener("pointerdown", (event) => {
-  if (state.locked || state.gameOver) {
+  if (state.mode === "tetris" || state.locked || state.gameOver) {
     return;
   }
 
@@ -984,12 +1705,31 @@ els.currentPiece.addEventListener("pointercancel", () => {
 });
 
 els.swap.addEventListener("click", swapWithNext);
+els.tetrisLeft.addEventListener("click", () => moveTetrisSideways(-1));
+els.tetrisRotate.addEventListener("click", rotateTetris);
+els.tetrisRight.addEventListener("click", () => moveTetrisSideways(1));
+els.tetrisDrop.addEventListener("click", hardDropTetromino);
 els.home.addEventListener("click", showHome);
 els.restart.addEventListener("click", newGame);
 els.newGame.addEventListener("click", newGame);
 els.revive.addEventListener("click", revive);
 els.startPlacement.addEventListener("click", () => startGame("placement"));
 els.startArcade.addEventListener("click", () => startGame("arcade"));
+els.startTetris.addEventListener("click", () => startGame("tetris"));
+
+window.addEventListener("keydown", (event) => {
+  if (state.mode !== "tetris" || state.screen !== "game" || state.gameOver) {
+    return;
+  }
+
+  if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", " "].includes(event.key)) {
+    event.preventDefault();
+  }
+  if (event.key === "ArrowLeft") moveTetrisSideways(-1);
+  if (event.key === "ArrowRight") moveTetrisSideways(1);
+  if (event.key === "ArrowUp") rotateTetris();
+  if (event.key === "ArrowDown" || event.key === " ") hardDropTetromino();
+});
 
 buildCodeRain();
 playHomeIntro();
