@@ -1,17 +1,23 @@
 :root {
-  --bg: #12001f;
-  --panel: #26103f;
-  --panel-2: #321757;
-  --line: #6b4aa5;
-  --text: #fff7ff;
-  --muted: #b99cdd;
-  --accent: #ffd15a;
-  --danger: #ff4f9e;
-  --rock: #5da8ff;
-  --paper: #25d486;
-  --scissors: #f4519a;
+  --bg: #100711;
+  --panel: #301915;
+  --panel-2: #573122;
+  --line: #e2ad55;
+  --text: #fff5df;
+  --muted: #d6bd8e;
+  --accent: #ffd86b;
+  --danger: #e94a69;
+  --rock: #58a6ff;
+  --paper: #2ccd7f;
+  --scissors: #ef4f93;
   --cyan-glow: #7bd3ff;
   --pink-glow: #ff75bf;
+  --cream: #ffe9bd;
+  --cream-2: #fff5df;
+  --ink: #2a120b;
+  --wood: #5d3019;
+  --velvet: #6d1838;
+  --blue-ribbon: #1d5fae;
   --cell: clamp(42px, 11.5vw, 64px);
   color-scheme: dark;
   font-family:
@@ -31,16 +37,59 @@ body {
 body {
   margin: 0;
   background:
-    radial-gradient(circle at 70% 0%, rgba(244, 81, 154, 0.18), transparent 21rem),
-    radial-gradient(circle at 20% 15%, rgba(93, 168, 255, 0.15), transparent 17rem),
-    linear-gradient(180deg, #24053d 0%, var(--bg) 42%, #080010 100%),
+    linear-gradient(180deg, rgba(94, 20, 48, 0.72) 0%, rgba(28, 8, 20, 0.9) 34%, #09030b 100%),
+    linear-gradient(110deg, rgba(29, 95, 174, 0.24), transparent 38%, rgba(219, 52, 56, 0.18) 72%, transparent),
     repeating-linear-gradient(
       135deg,
-      rgba(255, 255, 255, 0.025) 0 1px,
-      transparent 1px 16px
+      rgba(255, 216, 107, 0.045) 0 1px,
+      transparent 1px 18px
     );
   color: var(--text);
   overflow-x: hidden;
+}
+
+body[data-theme="colombia"] {
+  --accent: #ffd86b;
+  --wood: #5d3019;
+  --velvet: #6d1838;
+  --blue-ribbon: #1d5fae;
+  background:
+    radial-gradient(circle at 22% 0%, rgba(255, 216, 107, 0.22), transparent 18rem),
+    linear-gradient(180deg, rgba(101, 31, 43, 0.76) 0%, rgba(28, 8, 20, 0.92) 36%, #09030b 100%),
+    linear-gradient(115deg, rgba(29, 95, 174, 0.26), transparent 36%, rgba(219, 52, 56, 0.2) 72%, transparent);
+}
+
+body[data-theme="france"] {
+  --accent: #f4d9a0;
+  --wood: #493228;
+  --velvet: #7d2430;
+  --blue-ribbon: #1d4e9e;
+  background:
+    radial-gradient(circle at 18% 0%, rgba(29, 78, 158, 0.32), transparent 18rem),
+    linear-gradient(180deg, rgba(31, 50, 86, 0.86) 0%, rgba(38, 20, 24, 0.92) 42%, #09030b 100%),
+    linear-gradient(110deg, rgba(245, 245, 238, 0.12), transparent 34%, rgba(191, 42, 55, 0.24) 72%, transparent);
+}
+
+body[data-theme="usa"] {
+  --accent: #ffe071;
+  --wood: #53301e;
+  --velvet: #8a2038;
+  --blue-ribbon: #184fb7;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255, 224, 113, 0.22), transparent 18rem),
+    linear-gradient(180deg, rgba(15, 54, 121, 0.82) 0%, rgba(60, 16, 30, 0.92) 42%, #08030b 100%),
+    repeating-linear-gradient(90deg, rgba(255, 245, 223, 0.05) 0 10px, transparent 10px 22px);
+}
+
+body[data-theme="japan"] {
+  --accent: #ffd7df;
+  --wood: #4a241d;
+  --velvet: #8d1d35;
+  --blue-ribbon: #263d7a;
+  background:
+    radial-gradient(circle at 50% 8%, rgba(244, 201, 214, 0.26), transparent 16rem),
+    linear-gradient(180deg, rgba(70, 24, 38, 0.86) 0%, rgba(22, 9, 17, 0.94) 42%, #09030b 100%),
+    linear-gradient(135deg, rgba(255, 245, 223, 0.08), transparent 35%, rgba(209, 54, 76, 0.18));
 }
 
 button {
@@ -241,6 +290,19 @@ button {
   transform: rotate(-5deg);
 }
 
+.home-actions {
+  display: grid;
+  justify-items: end;
+  gap: 9px;
+}
+
+.settings-button {
+  width: 46px;
+  min-height: 46px;
+  border-radius: 50%;
+  font-size: 1.25rem;
+}
+
 .mark-token {
   position: relative;
   display: grid;
@@ -277,17 +339,20 @@ button {
   height: 58%;
 }
 
-.mark-token.rock .mark-icon {
+.mark-token.rock .mark-icon,
+.hero-token.rock .mark-icon {
   background: rgba(255, 255, 255, 0.96);
   clip-path: polygon(8% 48%, 24% 13%, 61% 2%, 92% 28%, 98% 66%, 72% 94%, 29% 99%, 6% 75%);
 }
 
-.mark-token.paper .mark-icon {
+.mark-token.paper .mark-icon,
+.hero-token.paper .mark-icon {
   border-radius: 2px;
   background: rgba(255, 255, 255, 0.96);
 }
 
-.mark-token.paper .mark-icon::before {
+.mark-token.paper .mark-icon::before,
+.hero-token.paper .mark-icon::before {
   content: "";
   position: absolute;
   right: 0;
@@ -299,7 +364,9 @@ button {
 }
 
 .mark-token.scissors .mark-icon::before,
-.mark-token.scissors .mark-icon::after {
+.mark-token.scissors .mark-icon::after,
+.hero-token.scissors .mark-icon::before,
+.hero-token.scissors .mark-icon::after {
   content: "";
   position: absolute;
   left: 46%;
@@ -311,11 +378,13 @@ button {
   transform-origin: 50% 80%;
 }
 
-.mark-token.scissors .mark-icon::before {
+.mark-token.scissors .mark-icon::before,
+.hero-token.scissors .mark-icon::before {
   transform: rotate(38deg);
 }
 
-.mark-token.scissors .mark-icon::after {
+.mark-token.scissors .mark-icon::after,
+.hero-token.scissors .mark-icon::after {
   transform: rotate(-38deg);
 }
 
@@ -1277,6 +1346,1018 @@ h2 {
   box-shadow: inset 0 0 0 1px rgba(185, 156, 221, 0.12);
 }
 
+/* Royal arcade skin */
+.home-screen,
+.character-screen,
+.game-screen {
+  isolation: isolate;
+}
+
+.home-ambient::after {
+  background:
+    linear-gradient(180deg, rgba(16, 7, 17, 0.1), rgba(16, 7, 17, 0.76) 68%),
+    repeating-linear-gradient(180deg, rgba(255, 233, 189, 0.035) 0 1px, transparent 1px 5px);
+}
+
+.crt-grid {
+  background:
+    linear-gradient(rgba(255, 216, 107, 0.16) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(88, 166, 255, 0.12) 1px, transparent 1px);
+  opacity: 0.24;
+}
+
+.code-rain {
+  color: rgba(255, 216, 107, 0.45);
+  opacity: 0.38;
+}
+
+.home-header,
+.selection-header {
+  position: relative;
+  z-index: 1;
+  padding: 12px 10px 14px;
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 245, 223, 0.12), transparent 48%),
+    linear-gradient(135deg, rgba(93, 48, 25, 0.9), rgba(42, 18, 11, 0.94));
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 216, 107, 0.28),
+    inset 0 -8px 0 rgba(0, 0, 0, 0.18),
+    0 10px 28px rgba(0, 0, 0, 0.28);
+}
+
+.home-header h1,
+.selection-header h1 {
+  max-width: 11ch;
+  color: var(--cream-2);
+  font-family: "Trebuchet MS", Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: clamp(2.3rem, 11vw, 3.8rem);
+  line-height: 0.88;
+  text-transform: uppercase;
+  text-shadow:
+    0 3px 0 #7a351f,
+    0 7px 18px rgba(0, 0, 0, 0.38),
+    0 0 18px rgba(255, 216, 107, 0.22);
+}
+
+.home-header h1::first-letter,
+.selection-header h1::first-letter {
+  color: var(--accent);
+}
+
+.home-prompt,
+.selection-mode {
+  color: var(--accent);
+  font-family: "Courier New", ui-monospace, monospace;
+  font-weight: 900;
+  text-transform: uppercase;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.35);
+}
+
+.home-mark {
+  grid-template-columns: repeat(2, 48px);
+  grid-template-rows: repeat(2, 48px);
+}
+
+.mark-token,
+.hero-token {
+  border-radius: 8px;
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 245, 223, 0.58),
+    inset 0 -7px 0 rgba(0, 0, 0, 0.2),
+    0 6px 0 rgba(0, 0, 0, 0.25),
+    0 0 18px color-mix(in srgb, currentColor 28%, transparent);
+}
+
+.start-modes,
+.character-grid,
+.character-screen > .ad-space {
+  position: relative;
+  z-index: 1;
+}
+
+.start-card {
+  min-height: 172px;
+  border: 2px solid rgba(255, 216, 107, 0.45);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 245, 223, 0.96), rgba(255, 226, 168, 0.92)),
+    var(--cream);
+  color: var(--ink);
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 255, 255, 0.36),
+    inset 0 -8px 0 rgba(91, 45, 17, 0.18),
+    0 7px 0 rgba(48, 18, 10, 0.85),
+    0 18px 34px rgba(0, 0, 0, 0.28);
+}
+
+.start-card::before {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  border-radius: 6px;
+  border: 1px dashed rgba(93, 48, 25, 0.3);
+  pointer-events: none;
+}
+
+.start-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.start-card strong {
+  color: #38180c;
+  font-family: "Trebuchet MS", Inter, ui-sans-serif, system-ui, sans-serif;
+  text-shadow: 0 2px 0 rgba(255, 255, 255, 0.52);
+}
+
+.start-card small,
+.character-card small {
+  display: block;
+  margin-top: 6px;
+  color: rgba(42, 18, 11, 0.72);
+  font-size: 0.82rem;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.start-kicker,
+.start-badge {
+  color: #8a3d20;
+}
+
+.start-badge {
+  background: linear-gradient(180deg, #cf334d, #8c1f35);
+  color: #fff5df;
+  border: 1px solid rgba(255, 216, 107, 0.54);
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.24),
+    0 3px 0 rgba(58, 18, 14, 0.38);
+}
+
+.arcade-card .start-badge {
+  background: linear-gradient(180deg, #1d75c8, #16437d);
+}
+
+.tetris-card .start-badge {
+  background: linear-gradient(180deg, #2ccd7f, #118052);
+}
+
+.start-board {
+  border: 2px solid rgba(255, 216, 107, 0.4);
+  background:
+    linear-gradient(180deg, rgba(255, 216, 107, 0.08), transparent),
+    #2a130d;
+  box-shadow:
+    inset 0 0 0 2px rgba(0, 0, 0, 0.32),
+    0 6px 0 rgba(93, 48, 25, 0.42);
+}
+
+.start-board span {
+  background: rgba(255, 233, 189, 0.075);
+  box-shadow: inset 0 0 0 1px rgba(255, 233, 189, 0.08);
+}
+
+.selection-header {
+  display: grid;
+  grid-template-columns: 48px 1fr;
+  align-items: center;
+  gap: 12px;
+}
+
+.selection-header h1 {
+  max-width: none;
+  font-size: clamp(1.85rem, 8vw, 2.75rem);
+}
+
+.selection-mode {
+  margin-top: 4px;
+  font-size: 0.86rem;
+}
+
+.character-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.character-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: 78px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 118px;
+  padding: 12px;
+  border: 2px solid rgba(255, 216, 107, 0.44);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 245, 223, 0.98), rgba(255, 228, 176, 0.94));
+  color: var(--ink);
+  text-align: left;
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 255, 255, 0.38),
+    inset 0 -8px 0 rgba(91, 45, 17, 0.16),
+    0 7px 0 rgba(48, 18, 10, 0.82),
+    0 16px 30px rgba(0, 0, 0, 0.24);
+  cursor: pointer;
+}
+
+.character-card:active {
+  transform: translateY(2px);
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 255, 255, 0.34),
+    inset 0 -6px 0 rgba(91, 45, 17, 0.16),
+    0 5px 0 rgba(48, 18, 10, 0.82);
+}
+
+.character-card.selected {
+  border-color: rgba(255, 216, 107, 0.9);
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 255, 255, 0.5),
+    inset 0 -8px 0 rgba(91, 45, 17, 0.16),
+    0 7px 0 rgba(48, 18, 10, 0.82),
+    0 0 0 4px rgba(255, 216, 107, 0.14),
+    0 0 26px rgba(255, 216, 107, 0.26);
+}
+
+.character-portrait {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 216, 107, 0.34), rgba(93, 48, 25, 0.24)),
+    #3c1d12;
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 216, 107, 0.34),
+    0 5px 0 rgba(48, 18, 10, 0.35);
+}
+
+.hero-token {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 50px;
+  height: 50px;
+}
+
+.hero-token.rock,
+.active-character[data-hero="rock"] .hero-token {
+  color: var(--rock);
+  background: var(--rock);
+}
+
+.hero-token.paper,
+.active-character[data-hero="paper"] .hero-token {
+  color: var(--paper);
+  background: var(--paper);
+}
+
+.hero-token.scissors,
+.active-character[data-hero="scissors"] .hero-token {
+  color: var(--scissors);
+  background: var(--scissors);
+}
+
+.character-card strong {
+  display: block;
+  color: #38180c;
+  font-family: "Trebuchet MS", Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: clamp(1.15rem, 5vw, 1.6rem);
+  line-height: 1.02;
+}
+
+.character-element {
+  align-self: start;
+  padding: 6px 8px;
+  border-radius: 999px;
+  background: rgba(88, 166, 255, 0.12);
+  color: #5f2815;
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.character-card.paper .character-element {
+  background: rgba(44, 205, 127, 0.16);
+}
+
+.character-card.scissors .character-element {
+  background: rgba(239, 79, 147, 0.14);
+}
+
+.crown {
+  position: absolute;
+  top: -11px;
+  left: 50%;
+  width: 40px;
+  height: 22px;
+  background: linear-gradient(180deg, #fff0a8, #f2ae31 70%, #9d561f);
+  clip-path: polygon(0 100%, 10% 35%, 30% 70%, 50% 0, 70% 70%, 90% 35%, 100% 100%);
+  filter: drop-shadow(0 3px 0 rgba(58, 18, 14, 0.34));
+  transform: translateX(-50%);
+}
+
+.topbar {
+  display: grid;
+  grid-template-columns: 46px 1fr 58px 46px;
+  align-items: center;
+  gap: 9px;
+  padding: 8px;
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 245, 223, 0.1), transparent 48%),
+    linear-gradient(135deg, rgba(93, 48, 25, 0.92), rgba(42, 18, 11, 0.94));
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 216, 107, 0.24),
+    0 8px 22px rgba(0, 0, 0, 0.24);
+}
+
+.topbar > div {
+  flex: initial;
+}
+
+.game-title {
+  min-width: 0;
+}
+
+.game-title h1 {
+  overflow: hidden;
+  color: var(--cream-2);
+  font-family: "Trebuchet MS", Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: clamp(1.25rem, 6vw, 1.7rem);
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.35);
+}
+
+.hero-mini {
+  overflow: hidden;
+  color: var(--accent);
+  font-size: 0.78rem;
+  font-weight: 900;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.level-chip {
+  display: none;
+}
+
+.game-screen[data-mode="arcade"] .level-chip,
+.game-screen[data-mode="tetris"] .level-chip {
+  display: grid;
+  grid-template-columns: auto minmax(46px, 1fr) auto;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  max-width: 100%;
+  color: var(--cream-2);
+  font-size: 0.64rem;
+  font-weight: 1000;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.level-chip strong {
+  color: var(--accent);
+}
+
+.level-track {
+  position: relative;
+  display: block;
+  height: 7px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 245, 223, 0.18);
+  box-shadow: inset 0 0 0 1px rgba(255, 245, 223, 0.2);
+}
+
+.level-track span {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #ffd86b, #2ccd7f);
+  box-shadow: 0 0 10px rgba(255, 216, 107, 0.45);
+  transition: width 260ms ease;
+}
+
+.level-chip small {
+  font-size: 0.58rem;
+  white-space: nowrap;
+}
+
+.level-chip.level-up {
+  animation: levelPulse 780ms ease both;
+}
+
+@keyframes levelPulse {
+  0% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  35% {
+    transform: scale(1.04);
+    filter: brightness(1.35);
+  }
+  100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+}
+
+.active-character {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 216, 107, 0.24), rgba(93, 48, 25, 0.2)),
+    #35170f;
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 216, 107, 0.25),
+    0 4px 0 rgba(0, 0, 0, 0.28);
+}
+
+.active-character .hero-token {
+  width: 38px;
+  height: 38px;
+  border-radius: 7px;
+}
+
+.active-character .crown {
+  top: -8px;
+  width: 30px;
+  height: 16px;
+}
+
+.icon-button,
+.swap-button,
+.mode-button,
+.primary-button,
+.secondary-button {
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 245, 223, 0.18), transparent 42%),
+    var(--velvet);
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 216, 107, 0.28),
+    0 4px 0 rgba(0, 0, 0, 0.32);
+}
+
+.stats {
+  gap: 7px;
+}
+
+.stats div {
+  padding: 9px 8px;
+  border: 2px solid rgba(255, 216, 107, 0.38);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 245, 223, 0.96), rgba(255, 229, 178, 0.94));
+  color: var(--ink);
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 255, 255, 0.38),
+    inset 0 -6px 0 rgba(91, 45, 17, 0.14),
+    0 5px 0 rgba(48, 18, 10, 0.7);
+}
+
+.stats span,
+.arcade-meter span {
+  color: #8a3d20;
+}
+
+.stats strong,
+.arcade-meter strong {
+  color: #2a120b;
+  font-size: clamp(1.05rem, 5vw, 1.45rem);
+  text-shadow: 0 2px 0 rgba(255, 255, 255, 0.58);
+}
+
+.board-panel {
+  align-content: center;
+  padding: 6px 0;
+}
+
+.board-wrap {
+  isolation: isolate;
+}
+
+.board-wrap::before {
+  content: "";
+  position: absolute;
+  inset: -12px;
+  z-index: 0;
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 216, 107, 0.92), rgba(151, 72, 31, 0.94)),
+    var(--wood);
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 245, 223, 0.3),
+    inset 0 -10px 0 rgba(42, 18, 11, 0.28),
+    0 10px 0 rgba(27, 8, 6, 0.92),
+    0 20px 42px rgba(0, 0, 0, 0.34);
+}
+
+.board {
+  border: 2px solid rgba(255, 233, 189, 0.14);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 216, 107, 0.07), transparent),
+    #24110c;
+  box-shadow:
+    inset 0 0 0 2px rgba(0, 0, 0, 0.46),
+    inset 0 0 28px rgba(0, 0, 0, 0.28);
+}
+
+.cell {
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 233, 189, 0.06), rgba(0, 0, 0, 0.12)),
+    #3a1c12;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 233, 189, 0.16),
+    inset 0 -4px 0 rgba(0, 0, 0, 0.16);
+}
+
+.cell.empty::after {
+  content: "";
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  background: rgba(255, 233, 189, 0.1);
+  clip-path: polygon(50% 0, 60% 38%, 100% 38%, 68% 60%, 80% 100%, 50% 75%, 20% 100%, 32% 60%, 0 38%, 40% 38%);
+}
+
+.cell.rock,
+.cell.paper,
+.cell.scissors,
+.piece {
+  border-radius: 8px;
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.52),
+    inset 0 0 0 2px rgba(255, 245, 223, 0.3),
+    inset 0 -7px 0 rgba(0, 0, 0, 0.2),
+    0 0 14px color-mix(in srgb, var(--piece-color) 38%, transparent),
+    0 4px 0 rgba(0, 0, 0, 0.24);
+}
+
+.cell.special {
+  border-radius: 8px;
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.62),
+    inset 0 0 0 2px rgba(255, 245, 223, 0.48),
+    inset 0 -7px 0 rgba(0, 0, 0, 0.24),
+    0 0 22px color-mix(in srgb, var(--special-color) 54%, transparent),
+    0 5px 0 rgba(0, 0, 0, 0.3);
+}
+
+.hand {
+  position: relative;
+  grid-template-columns: 1fr auto;
+  padding: 18px 10px 10px;
+  border: 2px solid rgba(255, 216, 107, 0.4);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 245, 223, 0.97), rgba(255, 229, 178, 0.95));
+  color: var(--ink);
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 255, 255, 0.34),
+    inset 0 -7px 0 rgba(91, 45, 17, 0.14),
+    0 6px 0 rgba(48, 18, 10, 0.72);
+}
+
+.hand::before {
+  content: "PROCHAIN";
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  padding: 4px 16px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #cf334d, #8c1f35);
+  color: var(--cream-2);
+  font-size: 0.72rem;
+  font-weight: 1000;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 216, 107, 0.54),
+    0 3px 0 rgba(58, 18, 14, 0.32);
+  transform: translateX(-50%);
+}
+
+.current-piece {
+  width: 62px;
+  height: 62px;
+}
+
+.next-piece {
+  width: 42px;
+  height: 42px;
+}
+
+.swap-button {
+  min-height: 50px;
+  padding: 0 13px;
+  background: linear-gradient(180deg, #1d75c8, #17467f);
+  color: #fff5df;
+  font-weight: 1000;
+  text-transform: uppercase;
+}
+
+.tetris-button {
+  min-height: 52px;
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 245, 223, 0.14), transparent 44%),
+    #1d5fae;
+  color: var(--cream-2);
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 216, 107, 0.28),
+    0 4px 0 rgba(0, 0, 0, 0.3);
+}
+
+.tetris-button.drop,
+.primary-button {
+  background: linear-gradient(180deg, #ffd86b, #f18b36);
+  color: #2a120b;
+}
+
+.arcade-meter {
+  border: 2px solid rgba(255, 216, 107, 0.34);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 245, 223, 0.96), rgba(255, 229, 178, 0.94));
+  color: var(--ink);
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 255, 255, 0.34),
+    0 5px 0 rgba(48, 18, 10, 0.72);
+}
+
+.ad-space {
+  border-radius: 8px;
+  background:
+    repeating-linear-gradient(90deg, rgba(255, 216, 107, 0.08) 0 10px, transparent 10px 20px),
+    rgba(42, 18, 11, 0.6);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 216, 107, 0.18),
+    0 4px 0 rgba(0, 0, 0, 0.22);
+}
+
+.modal-card {
+  border: 2px solid rgba(255, 216, 107, 0.42);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 245, 223, 0.98), rgba(255, 229, 178, 0.96));
+  color: var(--ink);
+}
+
+.modal-card .eyebrow,
+.modal-card p:not(.eyebrow) {
+  color: #8a3d20;
+}
+
+.secondary-button {
+  background: linear-gradient(180deg, #6d1838, #451027);
+  color: var(--cream-2);
+}
+
+/* Reference-inspired play layout */
+.game-screen {
+  gap: 9px;
+}
+
+.game-screen .topbar {
+  grid-template-columns: 54px minmax(0, 1fr) 54px;
+  min-height: 82px;
+  padding: 7px;
+}
+
+.game-screen .icon-button {
+  width: 52px;
+  min-height: 52px;
+  border: 2px solid rgba(255, 216, 107, 0.5);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 35% 25%, rgba(255, 245, 223, 0.38), transparent 34%),
+    linear-gradient(180deg, #c83755, #781d37);
+  font-size: 1.55rem;
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 245, 223, 0.18),
+    inset 0 -5px 0 rgba(0, 0, 0, 0.22),
+    0 4px 0 rgba(0, 0, 0, 0.3);
+}
+
+.royal-logo {
+  position: relative;
+  min-height: 68px;
+  padding: 7px 10px 8px;
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 245, 223, 0.13), transparent 50%),
+    linear-gradient(135deg, rgba(92, 44, 21, 0.82), rgba(35, 13, 9, 0.82));
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 216, 107, 0.22),
+    inset 0 -5px 0 rgba(0, 0, 0, 0.14);
+}
+
+.game-title h1 {
+  font-size: clamp(1.18rem, 5.7vw, 1.65rem);
+  line-height: 1;
+}
+
+.hero-mini {
+  margin-top: 2px;
+  font-size: 0.72rem;
+}
+
+.game-screen .stats {
+  grid-template-columns: 1.1fr 0.9fr 1fr;
+}
+
+.game-screen .stats div {
+  position: relative;
+  min-height: 58px;
+  padding: 8px 8px 7px;
+}
+
+.game-screen .stats span {
+  width: max-content;
+  min-width: 58px;
+  margin-top: -16px;
+  margin-bottom: 3px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #c83755, #8c1f35);
+  color: var(--cream-2);
+  font-size: 0.68rem;
+  text-align: center;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 216, 107, 0.42),
+    0 2px 0 rgba(58, 18, 14, 0.3);
+}
+
+.game-screen .stats div:nth-child(2) span {
+  background: linear-gradient(180deg, #1d75c8, #16437d);
+}
+
+.game-screen .stats div:nth-child(3) span {
+  background: linear-gradient(180deg, #1f9b61, #11643c);
+}
+
+.game-screen .stats strong {
+  font-size: clamp(1.35rem, 8vw, 2rem);
+}
+
+.game-stage {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 106px;
+  align-items: start;
+  gap: 8px;
+  min-height: 0;
+}
+
+.game-stage .board-panel {
+  display: block;
+  min-width: 0;
+  padding: 12px 0 0;
+}
+
+.game-screen .board-wrap {
+  margin: 0 auto;
+}
+
+.game-screen .board {
+  --cell: clamp(28px, 8vw, 40px);
+  gap: 4px;
+  padding: 8px;
+}
+
+.game-screen[data-mode="tetris"] .board.tetris-board {
+  --cell: clamp(23px, 7vw, 32px);
+}
+
+.champion-panel {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 30px 6px 8px;
+  border: 2px solid rgba(255, 216, 107, 0.45);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 245, 223, 0.94), rgba(255, 226, 168, 0.9));
+  color: var(--ink);
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 255, 255, 0.32),
+    inset 0 -7px 0 rgba(91, 45, 17, 0.14),
+    0 6px 0 rgba(48, 18, 10, 0.72);
+}
+
+.champion-ribbon {
+  position: absolute;
+  top: -13px;
+  left: 50%;
+  width: min(118px, calc(100% + 8px));
+  padding: 4px 6px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #1d75c8, #123d74);
+  color: var(--cream-2);
+  font-size: 0.64rem;
+  font-weight: 1000;
+  line-height: 1.05;
+  text-align: center;
+  text-transform: uppercase;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 216, 107, 0.52),
+    0 3px 0 rgba(58, 18, 14, 0.32);
+  transform: translateX(-50%);
+}
+
+.champion-portrait-large {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 82px;
+  height: 88px;
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 216, 107, 0.34), rgba(93, 48, 25, 0.24)),
+    #3c1d12;
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 216, 107, 0.34),
+    0 5px 0 rgba(48, 18, 10, 0.35);
+}
+
+.champion-portrait-large .hero-token {
+  width: 58px;
+  height: 58px;
+}
+
+.champion-portrait-large .crown {
+  top: -12px;
+  width: 46px;
+  height: 25px;
+}
+
+.champion-role {
+  color: #7a351f;
+  font-size: 0.72rem;
+  font-weight: 1000;
+  line-height: 1.05;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.power-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  width: 100%;
+}
+
+.power-button {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  min-height: 50px;
+  padding: 5px 3px;
+  border: 2px solid rgba(255, 216, 107, 0.42);
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 35% 20%, rgba(255, 245, 223, 0.42), transparent 36%),
+    linear-gradient(180deg, #a7354e, #5c1830);
+  color: var(--cream-2);
+  box-shadow:
+    inset 0 -5px 0 rgba(0, 0, 0, 0.16),
+    0 3px 0 rgba(48, 18, 10, 0.48);
+}
+
+.power-button:nth-child(2) {
+  background:
+    radial-gradient(circle at 35% 20%, rgba(255, 245, 223, 0.42), transparent 36%),
+    linear-gradient(180deg, #7a48cf, #45206f);
+}
+
+.power-button:nth-child(3) {
+  background:
+    radial-gradient(circle at 35% 20%, rgba(255, 245, 223, 0.42), transparent 36%),
+    linear-gradient(180deg, #1d75c8, #17467f);
+}
+
+.power-button:nth-child(4) {
+  background:
+    radial-gradient(circle at 35% 20%, rgba(255, 245, 223, 0.42), transparent 36%),
+    linear-gradient(180deg, #ffd86b, #d15b30);
+  color: #2a120b;
+}
+
+.power-button span {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.power-button strong {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 0.54rem;
+  font-weight: 1000;
+  line-height: 1;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.action-dock {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.action-button {
+  display: grid;
+  place-items: center;
+  gap: 2px;
+  min-height: 58px;
+  border: 2px solid rgba(255, 216, 107, 0.46);
+  border-radius: 10px;
+  background:
+    radial-gradient(circle at 35% 22%, rgba(255, 245, 223, 0.4), transparent 34%),
+    linear-gradient(180deg, #7a48cf, #512087);
+  color: var(--cream-2);
+  font-size: 1.45rem;
+  font-weight: 1000;
+  box-shadow:
+    inset 0 -6px 0 rgba(0, 0, 0, 0.18),
+    0 4px 0 rgba(48, 18, 10, 0.55);
+}
+
+.action-button span {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 0.66rem;
+  line-height: 1;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.action-button.redo {
+  background:
+    radial-gradient(circle at 35% 22%, rgba(255, 245, 223, 0.42), transparent 34%),
+    linear-gradient(180deg, #ffbd47, #d86b22);
+  color: #2a120b;
+}
+
+.action-button.clear {
+  background:
+    radial-gradient(circle at 35% 22%, rgba(255, 245, 223, 0.42), transparent 34%),
+    linear-gradient(180deg, #22a8d8, #17658e);
+}
+
+.action-button.pass {
+  background:
+    radial-gradient(circle at 35% 22%, rgba(255, 245, 223, 0.42), transparent 34%),
+    linear-gradient(180deg, #f15f4a, #a6282b);
+}
+
+.game-screen[data-mode="tetris"] .action-dock {
+  display: none;
+}
+
+.game-screen[data-mode="tetris"] .champion-panel {
+  padding-top: 24px;
+}
+
+.game-screen[data-mode="tetris"] .champion-portrait-large {
+  width: 74px;
+  height: 78px;
+}
+
+.game-screen[data-mode="tetris"] .champion-portrait-large .hero-token {
+  width: 52px;
+  height: 52px;
+}
+
+.game-screen[data-mode="tetris"] .power-button {
+  min-height: 42px;
+}
+
+.game-screen[data-mode="tetris"] .power-button strong {
+  display: none;
+}
+
 .modal {
   position: fixed;
   inset: 0;
@@ -1334,6 +2415,912 @@ h2 {
 
 .secondary-button {
   background: rgba(49, 23, 87, 0.92);
+}
+
+.settings-card {
+  display: grid;
+  gap: 14px;
+}
+
+.settings-head {
+  display: grid;
+  grid-template-columns: 1fr 46px;
+  align-items: center;
+  gap: 12px;
+}
+
+.settings-head h2 {
+  color: var(--ink);
+  font-family: "Trebuchet MS", Inter, ui-sans-serif, system-ui, sans-serif;
+  text-transform: uppercase;
+}
+
+.settings-head .icon-button {
+  width: 44px;
+  min-height: 44px;
+  border-radius: 50%;
+  color: var(--cream-2);
+}
+
+.settings-section {
+  display: grid;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  background: rgba(93, 48, 25, 0.1);
+  box-shadow:
+    inset 0 0 0 1px rgba(93, 48, 25, 0.12),
+    inset 0 2px 0 rgba(255, 255, 255, 0.2);
+}
+
+.setting-line {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.setting-line span,
+.settings-label span {
+  display: block;
+  color: #5f2815;
+  font-size: 0.82rem;
+  font-weight: 1000;
+  text-transform: uppercase;
+}
+
+.setting-line small,
+.settings-label small {
+  display: block;
+  margin-top: 2px;
+  color: rgba(42, 18, 11, 0.68);
+  font-size: 0.75rem;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.toggle-button,
+.language-button {
+  min-height: 42px;
+  border-radius: 999px;
+  font-weight: 1000;
+  text-transform: uppercase;
+}
+
+.toggle-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 104px;
+  padding: 4px 10px 4px 5px;
+  background: linear-gradient(180deg, #7b3a48, #4a1a28);
+  color: var(--cream-2);
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 216, 107, 0.25),
+    0 3px 0 rgba(48, 18, 10, 0.45);
+}
+
+.toggle-button.active {
+  background: linear-gradient(180deg, #25c77d, #13724b);
+}
+
+.toggle-dot {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--cream-2);
+  box-shadow:
+    inset 0 -3px 0 rgba(0, 0, 0, 0.18),
+    0 2px 0 rgba(0, 0, 0, 0.2);
+}
+
+.toggle-button strong {
+  font-size: 0.72rem;
+}
+
+.language-button {
+  padding: 0 13px;
+  background: linear-gradient(180deg, #1d75c8, #17467f);
+  color: var(--cream-2);
+  opacity: 1;
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 216, 107, 0.25),
+    0 3px 0 rgba(48, 18, 10, 0.45);
+}
+
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.theme-button {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  align-items: center;
+  gap: 8px;
+  min-height: 52px;
+  padding: 8px;
+  border: 2px solid rgba(93, 48, 25, 0.18);
+  border-radius: 8px;
+  background: rgba(255, 245, 223, 0.66);
+  color: var(--ink);
+  text-align: left;
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.45),
+    0 3px 0 rgba(48, 18, 10, 0.18);
+}
+
+.theme-button.selected {
+  border-color: rgba(255, 216, 107, 0.92);
+  background: var(--cream-2);
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.52),
+    0 0 0 3px rgba(255, 216, 107, 0.18),
+    0 4px 0 rgba(48, 18, 10, 0.32);
+}
+
+.theme-button strong {
+  overflow: hidden;
+  font-size: 0.78rem;
+  font-weight: 1000;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.theme-swatch {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 245, 223, 0.6),
+    0 2px 0 rgba(0, 0, 0, 0.2);
+}
+
+.theme-button.colombia .theme-swatch {
+  background: conic-gradient(#f9d84f 0 34%, #1d5fae 34% 67%, #c83755 67% 100%);
+}
+
+.theme-button.france .theme-swatch {
+  background: linear-gradient(90deg, #1d4e9e 0 33%, #fff5df 33% 66%, #c83755 66% 100%);
+}
+
+.theme-button.usa .theme-swatch {
+  background:
+    radial-gradient(circle at 28% 30%, #1d4e9e 0 28%, transparent 29%),
+    repeating-linear-gradient(180deg, #c83755 0 5px, #fff5df 5px 10px);
+}
+
+.theme-button.japan .theme-swatch {
+  background: radial-gradient(circle, #d9364c 0 32%, #fff5df 33% 100%);
+}
+
+.modal-card {
+  border: 2px solid rgba(255, 216, 107, 0.42);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 245, 223, 0.98), rgba(255, 229, 178, 0.96));
+  color: var(--ink);
+}
+
+.modal-card .eyebrow,
+.modal-card p:not(.eyebrow) {
+  color: #8a3d20;
+}
+
+/* Stronger country skins from the visual references */
+.theme-slogan {
+  display: inline-block;
+  margin-top: 7px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--theme-ribbon, #c83755), var(--theme-ribbon-dark, #7b1d36));
+  color: var(--cream-2);
+  font-size: 0.82rem;
+  font-weight: 1000;
+  line-height: 1;
+  text-transform: uppercase;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 216, 107, 0.52),
+    0 3px 0 rgba(58, 18, 14, 0.32);
+}
+
+.theme-decor {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.theme-decor span {
+  position: absolute;
+  display: block;
+  pointer-events: none;
+}
+
+.theme-garland {
+  top: 18px;
+  left: -8%;
+  width: 116%;
+  height: 38px;
+  opacity: 0.82;
+  transform: rotate(-4deg);
+}
+
+.theme-garland::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, transparent 0 2%, rgba(255, 245, 223, 0.72) 2% 98%, transparent 98%),
+    conic-gradient(from 45deg, var(--flag-a, #ffd86b) 0 25%, transparent 0 100%),
+    conic-gradient(from 45deg, var(--flag-b, #1d75c8) 0 25%, transparent 0 100%),
+    conic-gradient(from 45deg, var(--flag-c, #c83755) 0 25%, transparent 0 100%);
+  background-size:
+    100% 2px,
+    58px 32px,
+    58px 32px,
+    58px 32px;
+  background-position:
+    0 5px,
+    0 7px,
+    19px 7px,
+    38px 7px;
+  background-repeat:
+    no-repeat,
+    repeat-x,
+    repeat-x,
+    repeat-x;
+}
+
+.theme-landmark {
+  left: 10px;
+  bottom: 78px;
+  width: 78px;
+  height: 88px;
+  border-radius: 8px;
+  opacity: 0.72;
+  transform: rotate(-4deg);
+}
+
+.theme-landmark::before,
+.theme-landmark::after,
+.theme-prop::before,
+.theme-prop::after,
+.theme-skyline::before,
+.theme-skyline::after {
+  content: "";
+  position: absolute;
+}
+
+.theme-prop-a {
+  right: 18px;
+  top: 120px;
+  width: 68px;
+  height: 68px;
+  opacity: 0.58;
+}
+
+.theme-prop-b {
+  left: 20px;
+  top: 170px;
+  width: 62px;
+  height: 62px;
+  opacity: 0.52;
+}
+
+.theme-skyline {
+  right: 0;
+  bottom: 0;
+  width: 62%;
+  height: 34%;
+  opacity: 0.28;
+}
+
+body[data-theme="colombia"] {
+  --theme-ribbon: #cf334d;
+  --theme-ribbon-dark: #8c1f35;
+  --theme-ribbon-alt: #1d75c8;
+  --theme-accent-2: #2ebf6f;
+  --theme-frame: #eab33f;
+  --theme-frame-dark: #9a4a20;
+  --flag-a: #ffd84c;
+  --flag-b: #1d75c8;
+  --flag-c: #cf334d;
+  --ornament: "✿";
+  background:
+    radial-gradient(circle at 12% 14%, rgba(255, 216, 76, 0.28), transparent 8rem),
+    radial-gradient(circle at 86% 12%, rgba(46, 191, 111, 0.2), transparent 10rem),
+    linear-gradient(180deg, #1f9eea 0%, #ffd166 18%, #7a1f36 46%, #08030b 100%);
+}
+
+body[data-theme="colombia"] .home-ambient::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 14% 10%, rgba(46, 191, 111, 0.55) 0 9px, transparent 10px),
+    radial-gradient(circle at 20% 18%, rgba(213, 46, 69, 0.52) 0 7px, transparent 8px),
+    radial-gradient(circle at 86% 20%, rgba(255, 216, 76, 0.5) 0 9px, transparent 10px),
+    linear-gradient(180deg, rgba(60, 175, 231, 0.72) 0 28%, rgba(255, 207, 97, 0.28) 29% 46%, transparent 72%);
+}
+
+body[data-theme="colombia"] .theme-landmark {
+  background:
+    linear-gradient(180deg, rgba(255, 245, 223, 0.1), transparent),
+    #4c2415;
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 216, 107, 0.24),
+    0 4px 0 rgba(0, 0, 0, 0.25);
+}
+
+body[data-theme="colombia"] .theme-landmark::before {
+  content: "CAFÉ";
+  inset: 12px 8px auto;
+  color: #ffd86b;
+  font-family: "Courier New", ui-monospace, monospace;
+  font-size: 1.02rem;
+  font-weight: 1000;
+  line-height: 1;
+  text-align: center;
+}
+
+body[data-theme="colombia"] .theme-landmark::after {
+  left: 13px;
+  right: 13px;
+  bottom: 13px;
+  height: 30px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 35% 40%, #7b2d1d 0 8px, transparent 9px),
+    radial-gradient(circle at 55% 48%, #9b3b23 0 8px, transparent 9px),
+    radial-gradient(circle at 72% 40%, #6e2518 0 7px, transparent 8px);
+}
+
+body[data-theme="colombia"] .theme-prop-a::before,
+body[data-theme="colombia"] .theme-prop-a::after {
+  width: 46px;
+  height: 28px;
+  border-radius: 50%;
+  background: #2ebf6f;
+  transform-origin: 50% 100%;
+}
+
+body[data-theme="colombia"] .theme-prop-a::before {
+  transform: rotate(-28deg);
+}
+
+body[data-theme="colombia"] .theme-prop-a::after {
+  right: 0;
+  background: #1a9c56;
+  transform: rotate(28deg);
+}
+
+body[data-theme="colombia"] .theme-prop-b::before {
+  content: "♪";
+  inset: 0;
+  color: rgba(255, 216, 107, 0.58);
+  font-size: 3rem;
+  font-weight: 1000;
+}
+
+body[data-theme="colombia"] .theme-skyline {
+  background:
+    linear-gradient(90deg, #f0c04d 0 11%, transparent 11% 15%, #1d75c8 15% 29%, transparent 29% 34%, #cf334d 34% 48%, transparent 48% 100%);
+  clip-path: polygon(0 78%, 9% 68%, 18% 74%, 25% 54%, 37% 67%, 47% 46%, 62% 66%, 73% 54%, 100% 74%, 100% 100%, 0 100%);
+}
+
+body[data-theme="france"] {
+  --theme-ribbon: #1d4e9e;
+  --theme-ribbon-dark: #142d5d;
+  --theme-ribbon-alt: #c83755;
+  --theme-accent-2: #b79a52;
+  --theme-frame: #d7bc72;
+  --theme-frame-dark: #6d4b2a;
+  --flag-a: #1d4e9e;
+  --flag-b: #fff5df;
+  --flag-c: #c83755;
+  --ornament: "⚜";
+  background:
+    radial-gradient(circle at 12% 18%, rgba(255, 245, 223, 0.18), transparent 9rem),
+    linear-gradient(180deg, #72b8e7 0%, #e8d9bc 24%, #2d2535 56%, #08030b 100%);
+}
+
+body[data-theme="france"] .home-ambient::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(29, 78, 158, 0.22), transparent 34%, rgba(200, 55, 85, 0.18)),
+    radial-gradient(circle at 22% 22%, rgba(255, 245, 223, 0.42) 0 10px, transparent 11px),
+    radial-gradient(circle at 78% 20%, rgba(200, 55, 85, 0.34) 0 8px, transparent 9px);
+}
+
+body[data-theme="france"] .theme-landmark {
+  left: 8px;
+  bottom: 76px;
+  background: transparent;
+}
+
+body[data-theme="france"] .theme-landmark::before {
+  left: 23px;
+  bottom: 0;
+  width: 28px;
+  height: 88px;
+  background: linear-gradient(180deg, rgba(255, 245, 223, 0.88), rgba(97, 62, 42, 0.48));
+  clip-path: polygon(50% 0, 62% 28%, 78% 100%, 56% 100%, 50% 62%, 44% 100%, 22% 100%, 38% 28%);
+}
+
+body[data-theme="france"] .theme-landmark::after {
+  content: "PARIS";
+  left: 0;
+  bottom: -12px;
+  width: 78px;
+  color: rgba(255, 245, 223, 0.78);
+  font-family: "Courier New", ui-monospace, monospace;
+  font-size: 0.82rem;
+  font-weight: 1000;
+  text-align: center;
+}
+
+body[data-theme="france"] .theme-prop-a::before {
+  content: "CAFÉ";
+  right: 0;
+  top: 0;
+  width: 66px;
+  height: 36px;
+  border-radius: 6px;
+  background: rgba(42, 18, 11, 0.72);
+  color: #fff5df;
+  font-size: 0.86rem;
+  font-weight: 1000;
+  line-height: 36px;
+  text-align: center;
+  box-shadow: inset 0 0 0 1px rgba(255, 245, 223, 0.32);
+}
+
+body[data-theme="france"] .theme-prop-b::before,
+body[data-theme="france"] .theme-prop-b::after {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, #c83755 0 20%, #fff5df 21% 42%, #1d4e9e 43% 100%);
+}
+
+body[data-theme="france"] .theme-prop-b::after {
+  left: 28px;
+  top: 16px;
+}
+
+body[data-theme="france"] .theme-skyline {
+  opacity: 0.34;
+  background:
+    linear-gradient(90deg, rgba(29, 78, 158, 0.72) 0 32%, rgba(255, 245, 223, 0.62) 32% 66%, rgba(200, 55, 85, 0.68) 66% 100%);
+  clip-path: polygon(0 75%, 10% 62%, 18% 72%, 28% 50%, 40% 72%, 54% 54%, 66% 70%, 76% 48%, 100% 74%, 100% 100%, 0 100%);
+}
+
+body[data-theme="usa"] {
+  --theme-ribbon: #c83755;
+  --theme-ribbon-dark: #801d30;
+  --theme-ribbon-alt: #1d75c8;
+  --theme-accent-2: #ffd86b;
+  --theme-frame: #d6a640;
+  --theme-frame-dark: #5d3019;
+  --flag-a: #c83755;
+  --flag-b: #fff5df;
+  --flag-c: #1d75c8;
+  --ornament: "★";
+  background:
+    radial-gradient(circle at 18% 12%, rgba(255, 216, 107, 0.22), transparent 8rem),
+    radial-gradient(circle at 82% 10%, rgba(200, 55, 85, 0.22), transparent 7rem),
+    linear-gradient(180deg, #071c55 0%, #142f70 28%, #4b152a 58%, #07030b 100%);
+}
+
+body[data-theme="usa"] .home-ambient::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 14% 18%, rgba(255, 216, 107, 0.8) 0 2px, transparent 3px),
+    radial-gradient(circle at 28% 10%, rgba(255, 245, 223, 0.7) 0 2px, transparent 3px),
+    radial-gradient(circle at 72% 15%, rgba(255, 216, 107, 0.7) 0 2px, transparent 3px),
+    radial-gradient(circle at 88% 24%, rgba(255, 245, 223, 0.58) 0 2px, transparent 3px),
+    repeating-linear-gradient(90deg, rgba(255, 245, 223, 0.05) 0 9px, transparent 9px 20px);
+}
+
+body[data-theme="usa"] .theme-garland {
+  top: 14px;
+  transform: rotate(1deg);
+}
+
+body[data-theme="usa"] .theme-landmark {
+  left: 10px;
+  bottom: 72px;
+  width: 86px;
+  height: 74px;
+}
+
+body[data-theme="usa"] .theme-landmark::before {
+  content: "DINER";
+  left: 0;
+  bottom: 0;
+  width: 76px;
+  height: 38px;
+  border-radius: 8px;
+  background: rgba(200, 55, 85, 0.82);
+  color: #fff5df;
+  font-size: 1rem;
+  font-weight: 1000;
+  line-height: 38px;
+  text-align: center;
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 216, 107, 0.32),
+    0 0 16px rgba(200, 55, 85, 0.26);
+}
+
+body[data-theme="usa"] .theme-landmark::after {
+  content: "USA";
+  right: -3px;
+  top: 4px;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #fff5df;
+  color: #1d4e9e;
+  font-size: 0.78rem;
+  font-weight: 1000;
+  line-height: 38px;
+  text-align: center;
+}
+
+body[data-theme="usa"] .theme-prop-a::before,
+body[data-theme="usa"] .theme-prop-a::after {
+  width: 74px;
+  height: 74px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, transparent 0 17px, rgba(255, 216, 107, 0.72) 18px 20px, transparent 21px),
+    conic-gradient(from 0deg, transparent 0 8%, rgba(255, 216, 107, 0.7) 8% 10%, transparent 10% 18%, rgba(200, 55, 85, 0.66) 18% 20%, transparent 20% 100%);
+}
+
+body[data-theme="usa"] .theme-prop-a::after {
+  right: 28px;
+  top: 28px;
+  transform: scale(0.62);
+}
+
+body[data-theme="usa"] .theme-prop-b::before {
+  content: "★";
+  inset: 0;
+  color: rgba(255, 216, 107, 0.66);
+  font-size: 3.2rem;
+  line-height: 1;
+}
+
+body[data-theme="usa"] .theme-skyline {
+  right: -2px;
+  opacity: 0.42;
+  background:
+    repeating-linear-gradient(90deg, #142f70 0 18px, #0b1d48 18px 32px),
+    linear-gradient(180deg, #ffd86b, transparent);
+  clip-path: polygon(0 80%, 5% 54%, 15% 54%, 15% 78%, 24% 46%, 34% 46%, 34% 78%, 44% 30%, 55% 30%, 55% 77%, 63% 50%, 74% 50%, 74% 78%, 84% 58%, 100% 58%, 100% 100%, 0 100%);
+}
+
+body[data-theme="japan"] {
+  --theme-ribbon: #d9364c;
+  --theme-ribbon-dark: #7d1a2c;
+  --theme-ribbon-alt: #263d7a;
+  --theme-accent-2: #e9b8c7;
+  --theme-frame: #d7aa64;
+  --theme-frame-dark: #4a241d;
+  --flag-a: #fff5df;
+  --flag-b: #d9364c;
+  --flag-c: #263d7a;
+  --ornament: "◆";
+  background:
+    radial-gradient(circle at 50% 12%, rgba(217, 54, 76, 0.32), transparent 8rem),
+    linear-gradient(180deg, #f2d5cf 0%, #4d1b2a 34%, #15070f 70%, #08030b 100%);
+}
+
+body[data-theme="japan"] .home-ambient::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 16%, rgba(217, 54, 76, 0.62) 0 46px, transparent 47px),
+    repeating-linear-gradient(90deg, rgba(255, 245, 223, 0.05) 0 2px, transparent 2px 20px),
+    linear-gradient(180deg, rgba(255, 245, 223, 0.18), transparent 38%);
+}
+
+body[data-theme="japan"] .theme-garland {
+  top: 12px;
+  height: 48px;
+  transform: rotate(0deg);
+}
+
+body[data-theme="japan"] .theme-garland::before {
+  background:
+    linear-gradient(90deg, transparent 0 2%, rgba(255, 245, 223, 0.62) 2% 98%, transparent 98%),
+    radial-gradient(circle, #d9364c 0 11px, #fff5df 12px 18px, transparent 19px);
+  background-size:
+    100% 2px,
+    48px 48px;
+  background-position:
+    0 5px,
+    0 10px;
+  background-repeat:
+    no-repeat,
+    repeat-x;
+}
+
+body[data-theme="japan"] .theme-landmark {
+  left: 10px;
+  bottom: 78px;
+  width: 86px;
+  height: 80px;
+  background: transparent;
+}
+
+body[data-theme="japan"] .theme-landmark::before {
+  left: 6px;
+  top: 12px;
+  width: 74px;
+  height: 46px;
+  background: #d9364c;
+  clip-path: polygon(0 0, 100% 0, 92% 18%, 61% 18%, 61% 100%, 39% 100%, 39% 18%, 8% 18%);
+  box-shadow: 0 5px 0 rgba(0, 0, 0, 0.28);
+}
+
+body[data-theme="japan"] .theme-landmark::after {
+  content: "祭";
+  left: 19px;
+  bottom: -4px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(255, 245, 223, 0.88);
+  color: #d9364c;
+  font-size: 1.7rem;
+  font-weight: 1000;
+  line-height: 48px;
+  text-align: center;
+}
+
+body[data-theme="japan"] .theme-prop-a::before,
+body[data-theme="japan"] .theme-prop-a::after {
+  width: 28px;
+  height: 46px;
+  border-radius: 14px 14px 10px 10px;
+  background:
+    linear-gradient(90deg, transparent 44%, rgba(42, 18, 11, 0.28) 45% 55%, transparent 56%),
+    linear-gradient(180deg, #fff5df 0 13%, #d9364c 14% 84%, #fff5df 85% 100%);
+  box-shadow: 0 0 16px rgba(217, 54, 76, 0.34);
+}
+
+body[data-theme="japan"] .theme-prop-a::after {
+  right: 0;
+  top: 18px;
+}
+
+body[data-theme="japan"] .theme-prop-b::before {
+  content: "";
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 0, #fff5df 0 10px, transparent 11px),
+    repeating-linear-gradient(135deg, rgba(255, 245, 223, 0.6) 0 4px, transparent 4px 9px);
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+
+body[data-theme="japan"] .theme-skyline {
+  background:
+    linear-gradient(180deg, rgba(255, 245, 223, 0.78), rgba(217, 54, 76, 0.36));
+  clip-path: polygon(0 82%, 10% 72%, 22% 80%, 32% 62%, 42% 80%, 52% 50%, 62% 80%, 74% 64%, 84% 80%, 100% 70%, 100% 100%, 0 100%);
+}
+
+body[data-theme] .home-header,
+body[data-theme] .selection-header,
+body[data-theme] .topbar,
+body[data-theme] .royal-logo {
+  background:
+    linear-gradient(180deg, rgba(255, 245, 223, 0.13), transparent 48%),
+    linear-gradient(135deg, color-mix(in srgb, var(--theme-frame-dark, #5d3019) 82%, #000) 0%, rgba(35, 13, 9, 0.92) 100%);
+  border: 2px solid rgba(255, 216, 107, 0.2);
+}
+
+body[data-theme] .home-header::after,
+body[data-theme] .selection-header::after,
+body[data-theme] .topbar::after {
+  content: var(--ornament, "✦") " " var(--ornament, "✦") " " var(--ornament, "✦");
+  position: absolute;
+  right: 12px;
+  bottom: 8px;
+  color: rgba(255, 216, 107, 0.34);
+  font-size: 0.72rem;
+  font-weight: 1000;
+  pointer-events: none;
+}
+
+body[data-theme] .home-header h1,
+body[data-theme] .selection-header h1,
+body[data-theme] .game-title h1 {
+  text-shadow:
+    0 3px 0 color-mix(in srgb, var(--theme-ribbon-dark, #7b1d36) 78%, #000),
+    0 7px 18px rgba(0, 0, 0, 0.42),
+    0 0 18px rgba(255, 216, 107, 0.24);
+}
+
+body[data-theme] .start-card,
+body[data-theme] .character-card,
+body[data-theme] .stats div,
+body[data-theme] .hand,
+body[data-theme] .champion-panel,
+body[data-theme] .modal-card {
+  border-color: color-mix(in srgb, var(--theme-frame, #eab33f) 72%, #fff5df);
+  background:
+    linear-gradient(180deg, rgba(255, 248, 232, 0.98), rgba(255, 226, 168, 0.94));
+}
+
+body[data-theme] .start-card::after,
+body[data-theme] .character-card::after,
+body[data-theme] .stats div::after,
+body[data-theme] .hand::after,
+body[data-theme] .champion-panel::after {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border-radius: 6px;
+  border: 1px dashed color-mix(in srgb, var(--theme-frame-dark, #5d3019) 36%, transparent);
+  pointer-events: none;
+}
+
+body[data-theme] .stats div,
+body[data-theme] .hand,
+body[data-theme] .champion-panel {
+  position: relative;
+}
+
+body[data-theme] .start-badge,
+body[data-theme] .hand::before,
+body[data-theme] .game-screen .stats div:nth-child(1) span,
+body[data-theme] .champion-ribbon {
+  background: linear-gradient(180deg, var(--theme-ribbon, #cf334d), var(--theme-ribbon-dark, #8c1f35));
+}
+
+body[data-theme] .game-screen .stats div:nth-child(2) span,
+body[data-theme] .swap-button,
+body[data-theme] .tetris-button,
+body[data-theme] .power-button:nth-child(3) {
+  background: linear-gradient(180deg, var(--theme-ribbon-alt, #1d75c8), color-mix(in srgb, var(--theme-ribbon-alt, #1d75c8) 62%, #000));
+}
+
+body[data-theme] .game-screen .stats div:nth-child(3) span,
+body[data-theme] .tetris-card .start-badge {
+  background: linear-gradient(180deg, var(--theme-accent-2, #2ebf6f), color-mix(in srgb, var(--theme-accent-2, #2ebf6f) 62%, #000));
+}
+
+body[data-theme] .board-wrap::before {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--theme-frame, #eab33f) 88%, #fff5df), var(--theme-frame-dark, #9a4a20)),
+    repeating-linear-gradient(45deg, var(--flag-a, #ffd86b) 0 8px, var(--flag-b, #1d75c8) 8px 16px, var(--flag-c, #cf334d) 16px 24px);
+}
+
+body[data-theme] .action-button.undo {
+  background:
+    radial-gradient(circle at 35% 22%, rgba(255, 245, 223, 0.4), transparent 34%),
+    linear-gradient(180deg, #7a48cf, #512087);
+}
+
+body[data-theme] .action-button.redo {
+  background:
+    radial-gradient(circle at 35% 22%, rgba(255, 245, 223, 0.42), transparent 34%),
+    linear-gradient(180deg, #ffbd47, #d86b22);
+}
+
+body[data-theme] .action-button.clear {
+  background:
+    radial-gradient(circle at 35% 22%, rgba(255, 245, 223, 0.42), transparent 34%),
+    linear-gradient(180deg, var(--theme-ribbon-alt, #1d75c8), color-mix(in srgb, var(--theme-ribbon-alt, #1d75c8) 62%, #000));
+}
+
+body[data-theme] .action-button.pass,
+body[data-theme] .game-screen .icon-button {
+  background:
+    radial-gradient(circle at 35% 22%, rgba(255, 245, 223, 0.36), transparent 34%),
+    linear-gradient(180deg, var(--theme-ribbon, #cf334d), var(--theme-ribbon-dark, #8c1f35));
+}
+
+body[data-theme="france"] .home-header,
+body[data-theme="france"] .selection-header,
+body[data-theme="france"] .topbar,
+body[data-theme="france"] .royal-logo {
+  background:
+    linear-gradient(180deg, rgba(255, 245, 223, 0.12), transparent 48%),
+    linear-gradient(135deg, rgba(31, 50, 86, 0.92), rgba(89, 27, 35, 0.9));
+}
+
+body[data-theme="france"] .start-badge,
+body[data-theme="france"] .hand::before,
+body[data-theme="france"] .game-screen .stats div:nth-child(1) span,
+body[data-theme="france"] .champion-ribbon {
+  background: linear-gradient(180deg, #1d4e9e, #142d5d);
+}
+
+body[data-theme="france"] .game-screen .stats div:nth-child(2) span,
+body[data-theme="france"] .swap-button,
+body[data-theme="france"] .tetris-button {
+  background: linear-gradient(180deg, #fff5df, #d8c7aa);
+  color: #2a120b;
+}
+
+body[data-theme="france"] .game-screen .stats div:nth-child(3) span,
+body[data-theme="france"] .game-screen .icon-button,
+body[data-theme="france"] .action-button.pass {
+  background:
+    radial-gradient(circle at 35% 22%, rgba(255, 245, 223, 0.36), transparent 34%),
+    linear-gradient(180deg, #c83755, #781d37);
+  color: var(--cream-2);
+}
+
+body[data-theme="usa"] .home-header,
+body[data-theme="usa"] .selection-header,
+body[data-theme="usa"] .topbar,
+body[data-theme="usa"] .royal-logo {
+  background:
+    linear-gradient(180deg, rgba(255, 245, 223, 0.13), transparent 48%),
+    linear-gradient(135deg, rgba(24, 79, 183, 0.88), rgba(120, 29, 55, 0.9));
+}
+
+body[data-theme="usa"] .home-header,
+body[data-theme="usa"] .start-card,
+body[data-theme="usa"] .character-card,
+body[data-theme="usa"] .stats div,
+body[data-theme="usa"] .hand,
+body[data-theme="usa"] .champion-panel {
+  border-color: rgba(255, 224, 113, 0.66);
+}
+
+body[data-theme="usa"] .start-badge,
+body[data-theme="usa"] .hand::before,
+body[data-theme="usa"] .game-screen .stats div:nth-child(1) span,
+body[data-theme="usa"] .champion-ribbon {
+  background: linear-gradient(180deg, #c83755, #801d30);
+}
+
+body[data-theme="usa"] .game-screen .stats div:nth-child(2) span,
+body[data-theme="usa"] .swap-button,
+body[data-theme="usa"] .tetris-button {
+  background: linear-gradient(180deg, #1d75c8, #123d74);
+}
+
+body[data-theme="japan"] .home-header,
+body[data-theme="japan"] .selection-header,
+body[data-theme="japan"] .topbar,
+body[data-theme="japan"] .royal-logo {
+  background:
+    linear-gradient(180deg, rgba(255, 245, 223, 0.14), transparent 48%),
+    linear-gradient(135deg, rgba(86, 32, 40, 0.9), rgba(32, 14, 19, 0.94));
+}
+
+body[data-theme="japan"] .start-card,
+body[data-theme="japan"] .character-card,
+body[data-theme="japan"] .stats div,
+body[data-theme="japan"] .hand,
+body[data-theme="japan"] .champion-panel,
+body[data-theme="japan"] .modal-card {
+  background:
+    linear-gradient(180deg, rgba(255, 248, 242, 0.98), rgba(255, 221, 229, 0.94));
+}
+
+body[data-theme="japan"] .start-badge,
+body[data-theme="japan"] .hand::before,
+body[data-theme="japan"] .game-screen .stats div:nth-child(1) span,
+body[data-theme="japan"] .champion-ribbon,
+body[data-theme="japan"] .game-screen .icon-button {
+  background:
+    radial-gradient(circle at 35% 22%, rgba(255, 245, 223, 0.32), transparent 34%),
+    linear-gradient(180deg, #d9364c, #7d1a2c);
 }
 
 @media (max-height: 720px) {

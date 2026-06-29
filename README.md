@@ -8,7 +8,8 @@ Ouvrir `index.html` dans un navigateur.
 
 ## Regles V2
 
-- L'accueil lance une partie en mode Placement, Arcade ou Tetris Arcade.
+- L'accueil choisit le mode, puis le joueur choisit un roi avant de lancer la partie.
+- Le bouton parametres de l'accueil gere le son, la langue francaise et les themes Colombie, France, USA, Japon avec decors dedies.
 - Grille de 6 colonnes par 8 lignes, sauf Tetris Arcade qui utilise 12 lignes.
 - Le joueur pose un bloc unitaire : pierre, feuille ou ciseaux.
 - Pierre bat ciseaux, ciseaux bat feuille, feuille bat pierre.
@@ -40,8 +41,10 @@ Les objets speciaux s'activent quand ils sont alignes avec deux blocs simples du
 ## Modes
 
 - Placement : aucune ligne automatique, defaite quand il n'y a plus de case libre.
-- Arcade : une ligne pousse depuis le bas toutes les 8 poses, puis 6, puis 5.
+- Arcade : une ligne pousse depuis le bas toutes les 8 poses, puis 7, 6 et 5 selon le niveau.
+- Arcade gagne 1 niveau tous les 3000 points : les poussees peuvent ajouter aleatoirement 1 a 3 couches depuis le bas.
 - Tetris Arcade : des tetrominos d'un seul type tombent sur la grille. Deplace, tourne ou fais tomber la piece avec les boutons ou les gestes (balayer a gauche/droite, vers le haut pour tourner, vers le bas pour tomber) ; les lignes completes disparaissent, puis les fusions Shifumi se resoudent.
+- Tetris Arcade gagne 1 niveau tous les 3000 points : la chute accelere par palier, puis une ligne de pression arrive a partir du niveau 4.
 
 ## Score
 

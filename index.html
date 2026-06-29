@@ -12,6 +12,13 @@
         <div class="home-ambient" aria-hidden="true">
           <div class="crt-grid"></div>
           <div class="code-rain" id="codeRain"></div>
+          <div class="theme-decor">
+            <span class="theme-garland"></span>
+            <span class="theme-landmark"></span>
+            <span class="theme-prop theme-prop-a"></span>
+            <span class="theme-prop theme-prop-b"></span>
+            <span class="theme-skyline"></span>
+          </div>
           <div class="falling-blocks">
             <span class="falling-block rock"></span>
             <span class="falling-block paper"></span>
@@ -22,14 +29,18 @@
         </div>
         <header class="home-header">
           <div>
-            <p class="eyebrow scramble-text" id="homeBootText" data-text="Insert coin">Insert coin</p>
-            <h1 class="scramble-text" id="homeTitle" data-text="Shifumi Blocks">Shifumi Blocks</h1>
+            <p class="eyebrow scramble-text" id="homeBootText" data-text="Royal boot">Royal boot</p>
+            <h1 class="scramble-text" id="homeTitle" data-text="Shifumi Royale">Shifumi Royale</h1>
+            <p class="theme-slogan" id="themeSlogan">Fiesta tropicale !</p>
             <p class="home-prompt scramble-text" id="homePrompt" data-text="Choisis ta partie">Choisis ta partie</p>
           </div>
-          <div class="home-mark" aria-hidden="true">
-            <span class="mark-token rock"><span class="mark-icon"></span></span>
-            <span class="mark-token paper"><span class="mark-icon"></span></span>
-            <span class="mark-token scissors"><span class="mark-icon"></span></span>
+          <div class="home-actions">
+            <button class="icon-button settings-button" id="settingsButton" type="button" aria-label="Paramètres">⚙</button>
+            <div class="home-mark" aria-hidden="true">
+              <span class="mark-token rock"><span class="mark-icon"></span></span>
+              <span class="mark-token paper"><span class="mark-icon"></span></span>
+              <span class="mark-token scissors"><span class="mark-icon"></span></span>
+            </div>
           </div>
         </header>
 
@@ -39,6 +50,7 @@
               <span>
                 <span class="start-kicker">Mode</span>
                 <strong>Placement</strong>
+                <small>Pose tranquille, gros combos.</small>
               </span>
               <span class="start-badge">6×8</span>
             </span>
@@ -54,6 +66,7 @@
               <span>
                 <span class="start-kicker">Mode</span>
                 <strong>Arcade</strong>
+                <small>La grille pousse, il faut tenir.</small>
               </span>
               <span class="start-badge">Push</span>
             </span>
@@ -69,6 +82,7 @@
               <span>
                 <span class="start-kicker">Test</span>
                 <strong>Tetris Arcade</strong>
+                <small>Les pièces tombent, version labo.</small>
               </span>
               <span class="start-badge">Drop</span>
             </span>
@@ -83,12 +97,90 @@
         <div class="ad-space" aria-label="Emplacement publicitaire"></div>
       </section>
 
+      <section class="character-screen screen hidden" id="characterScreen" aria-label="Choix du personnage">
+        <div class="home-ambient character-ambient" aria-hidden="true">
+          <div class="crt-grid"></div>
+          <div class="code-rain" id="characterCodeRain"></div>
+          <div class="theme-decor">
+            <span class="theme-garland"></span>
+            <span class="theme-landmark"></span>
+            <span class="theme-prop theme-prop-a"></span>
+            <span class="theme-prop theme-prop-b"></span>
+            <span class="theme-skyline"></span>
+          </div>
+          <div class="falling-blocks">
+            <span class="falling-block rock"></span>
+            <span class="falling-block paper"></span>
+            <span class="falling-block scissors"></span>
+            <span class="falling-block rock"></span>
+          </div>
+        </div>
+
+        <header class="selection-header">
+          <button class="icon-button" id="characterBackButton" type="button" aria-label="Retour">‹</button>
+          <div>
+            <p class="eyebrow">Champion</p>
+            <h1>Choisis ton roi</h1>
+            <p class="selection-mode" id="selectedModeLabel">Mode Placement</p>
+          </div>
+        </header>
+
+        <section class="character-grid" aria-label="Personnages">
+          <button class="character-card rock" type="button" data-character="rock">
+            <span class="character-portrait" aria-hidden="true">
+              <span class="crown"></span>
+              <span class="hero-token rock"><span class="mark-icon"></span></span>
+            </span>
+            <span class="character-copy">
+              <span class="start-kicker">Gardien</span>
+              <strong>Roi de la Pierre</strong>
+              <small>Pouvoir spécial à venir</small>
+            </span>
+            <span class="character-element">Pierre</span>
+          </button>
+
+          <button class="character-card paper" type="button" data-character="paper">
+            <span class="character-portrait" aria-hidden="true">
+              <span class="crown"></span>
+              <span class="hero-token paper"><span class="mark-icon"></span></span>
+            </span>
+            <span class="character-copy">
+              <span class="start-kicker">Stratège</span>
+              <strong>Roi de la Feuille</strong>
+              <small>Pouvoir spécial à venir</small>
+            </span>
+            <span class="character-element">Feuille</span>
+          </button>
+
+          <button class="character-card scissors" type="button" data-character="scissors">
+            <span class="character-portrait" aria-hidden="true">
+              <span class="crown"></span>
+              <span class="hero-token scissors"><span class="mark-icon"></span></span>
+            </span>
+            <span class="character-copy">
+              <span class="start-kicker">Duelliste</span>
+              <strong>Roi des Ciseaux</strong>
+              <small>Pouvoir spécial à venir</small>
+            </span>
+            <span class="character-element">Ciseaux</span>
+          </button>
+        </section>
+
+        <div class="ad-space" aria-label="Emplacement publicitaire"></div>
+      </section>
+
       <section class="game-screen screen hidden" id="gameScreen" aria-label="Partie">
         <header class="topbar">
           <button class="icon-button" id="homeButton" type="button" aria-label="Accueil">⌂</button>
-          <div>
-            <p class="eyebrow">Shifumi Blocks</p>
+          <div class="game-title royal-logo">
+            <p class="eyebrow" id="gameBrandText">Shifumi Royale</p>
             <h1 id="modeTitle">Placement</h1>
+            <p class="hero-mini" id="heroName">Roi de la Pierre</p>
+            <div class="level-chip" id="levelChip" aria-live="polite">
+              <span>Niveau <strong id="levelValue">1</strong></span>
+              <span class="level-track"><span id="levelBar"></span></span>
+              <small id="levelProgress">0 / 3000</small>
+            </div>
           </div>
           <button class="icon-button" id="restartButton" type="button" aria-label="Recommencer">↻</button>
         </header>
@@ -108,12 +200,41 @@
           </div>
         </section>
 
-        <section class="board-panel">
-          <div class="board-wrap">
-            <div class="board" id="board" aria-label="Plateau de jeu"></div>
-            <div class="effects-layer" id="effectsLayer" aria-hidden="true"></div>
-            <div class="combo-pop" id="comboPop" aria-live="polite"></div>
-          </div>
+        <section class="game-stage" aria-label="Plateau et champion">
+          <section class="board-panel">
+            <div class="board-wrap">
+              <div class="board" id="board" aria-label="Plateau de jeu"></div>
+              <div class="effects-layer" id="effectsLayer" aria-hidden="true"></div>
+              <div class="combo-pop" id="comboPop" aria-live="polite"></div>
+            </div>
+          </section>
+
+          <aside class="champion-panel" aria-label="Champion choisi">
+            <div class="champion-ribbon" id="championRibbon">Le roi de la pierre</div>
+            <div class="champion-portrait-large" id="activeCharacter" aria-label="Personnage choisi" aria-live="polite">
+              <span class="crown" aria-hidden="true"></span>
+              <span class="hero-token rock" id="activeCharacterToken" aria-hidden="true"><span class="mark-icon"></span></span>
+            </div>
+            <p class="champion-role" id="championRole">Gardien</p>
+            <div class="power-grid" aria-label="Pouvoirs du champion">
+              <button class="power-button" type="button" aria-label="Pouvoir un verrouillé">
+                <span>◆</span>
+                <strong>Don</strong>
+              </button>
+              <button class="power-button" type="button" aria-label="Pouvoir deux verrouillé">
+                <span>✦</span>
+                <strong>Aura</strong>
+              </button>
+              <button class="power-button" type="button" aria-label="Pouvoir trois verrouillé">
+                <span>✧</span>
+                <strong>Rel.</strong>
+              </button>
+              <button class="power-button" type="button" aria-label="Pouvoir ultime verrouillé">
+                <span>⚡</span>
+                <strong>Ultime</strong>
+              </button>
+            </div>
+          </aside>
         </section>
 
         <section class="hand" id="handPanel" aria-label="Bloc actuel">
@@ -125,6 +246,13 @@
             </div>
           </div>
           <button class="swap-button" id="swapButton" type="button">Échanger</button>
+        </section>
+
+        <section class="action-dock" aria-label="Actions">
+          <button class="action-button undo" type="button" aria-label="Annuler">↩<span>Annuler</span></button>
+          <button class="action-button redo" type="button" aria-label="Refaire">↻<span>Refaire</span></button>
+          <button class="action-button clear" type="button" aria-label="Effacer">✦<span>Effacer</span></button>
+          <button class="action-button pass" type="button" aria-label="Passer">▶<span>Passer</span></button>
         </section>
 
         <section class="tetris-controls hidden" id="tetrisControls" aria-label="Commandes Tetris">
@@ -152,6 +280,66 @@
           <button class="primary-button" id="reviveButton" type="button">Revive</button>
           <button class="secondary-button" id="newGameButton" type="button">Nouvelle partie</button>
         </div>
+      </div>
+    </div>
+
+    <div class="modal hidden settings-modal" id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+      <div class="modal-card settings-card">
+        <header class="settings-head">
+          <div>
+            <p class="eyebrow">Options</p>
+            <h2 id="settingsTitle">Paramètres</h2>
+          </div>
+          <button class="icon-button" id="settingsCloseButton" type="button" aria-label="Fermer">×</button>
+        </header>
+
+        <section class="settings-section" aria-label="Audio">
+          <div class="setting-line">
+            <div>
+              <span>Son</span>
+              <small>Préparé pour les effets audio</small>
+            </div>
+            <button class="toggle-button" id="soundToggleButton" type="button" aria-pressed="true">
+              <span class="toggle-dot"></span>
+              <strong>Activé</strong>
+            </button>
+          </div>
+        </section>
+
+        <section class="settings-section" aria-label="Langue">
+          <div class="setting-line">
+            <div>
+              <span>Langue</span>
+              <small>Autres langues plus tard</small>
+            </div>
+            <button class="language-button selected" type="button" disabled>Français</button>
+          </div>
+        </section>
+
+        <section class="settings-section" aria-label="Thèmes">
+          <div class="settings-label">
+            <span>Thème</span>
+            <small>Inspiré des pays de tes références</small>
+          </div>
+          <div class="theme-grid">
+            <button class="theme-button colombia" type="button" data-theme="colombia" aria-pressed="false">
+              <span class="theme-swatch"></span>
+              <strong>Colombie</strong>
+            </button>
+            <button class="theme-button france" type="button" data-theme="france" aria-pressed="false">
+              <span class="theme-swatch"></span>
+              <strong>France</strong>
+            </button>
+            <button class="theme-button usa" type="button" data-theme="usa" aria-pressed="false">
+              <span class="theme-swatch"></span>
+              <strong>USA</strong>
+            </button>
+            <button class="theme-button japan" type="button" data-theme="japan" aria-pressed="false">
+              <span class="theme-swatch"></span>
+              <strong>Japon</strong>
+            </button>
+          </div>
+        </section>
       </div>
     </div>
 

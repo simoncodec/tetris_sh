@@ -3,6 +3,8 @@ const STANDARD_HEIGHT = 8;
 const TETRIS_HEIGHT = 12;
 let HEIGHT = STANDARD_HEIGHT;
 const CHARGE_SIZE = 3;
+const LEVEL_SCORE = 3000;
+const TETRIS_MIN_DROP_DELAY = 430;
 const TYPES = ["rock", "paper", "scissors"];
 const BEATS = {
   rock: "scissors",
@@ -51,6 +53,64 @@ const LABELS = {
   scissors: "Ciseaux",
 };
 
+const MODE_LABELS = {
+  placement: "Placement",
+  arcade: "Arcade",
+  tetris: "Tetris Arcade",
+};
+
+const HEROES = {
+  rock: {
+    name: "Roi de la Pierre",
+    role: "Gardien",
+    element: "Pierre",
+  },
+  paper: {
+    name: "Roi de la Feuille",
+    role: "Stratège",
+    element: "Feuille",
+  },
+  scissors: {
+    name: "Roi des Ciseaux",
+    role: "Duelliste",
+    element: "Ciseaux",
+  },
+};
+
+const SETTINGS_STORAGE_KEY = "shifumi-royale-settings";
+const DEFAULT_SETTINGS = {
+  sound: true,
+  language: "fr",
+  theme: "colombia",
+};
+const THEME_IDS = ["colombia", "france", "usa", "japan"];
+const THEMES = {
+  colombia: {
+    title: "Shifumi Colombie",
+    boot: "Café royal",
+    slogan: "Fiesta tropicale !",
+    brand: "Shifumi Colombie",
+  },
+  france: {
+    title: "Shifumi France",
+    boot: "Fête française",
+    slogan: "Fête française !",
+    brand: "Shifumi France",
+  },
+  usa: {
+    title: "Shifumi USA",
+    boot: "Arcade night",
+    slogan: "Fête américaine !",
+    brand: "Shifumi USA",
+  },
+  japan: {
+    title: "Shifumi Japon",
+    boot: "Matsuri mode",
+    slogan: "Matsuri arcade !",
+    brand: "Shifumi Japon",
+  },
+};
+
 const SVG_NS = "http://www.w3.org/2000/svg";
 const PARTICLE_COUNT = 14;
 const SCRAMBLE_CHARS = "01#%<>[]{}/*+-";
@@ -58,11 +118,14 @@ const RAIN_WORDS = ["rock", "paper", "scissors", "block", "combo", "push", "pfc"
 
 const els = {
   homeScreen: document.querySelector("#homeScreen"),
+  characterScreen: document.querySelector("#characterScreen"),
   gameScreen: document.querySelector("#gameScreen"),
   homeBootText: document.querySelector("#homeBootText"),
   homeTitle: document.querySelector("#homeTitle"),
+  themeSlogan: document.querySelector("#themeSlogan"),
   homePrompt: document.querySelector("#homePrompt"),
   codeRain: document.querySelector("#codeRain"),
+  characterCodeRain: document.querySelector("#characterCodeRain"),
   board: document.querySelector("#board"),
   boardWrap: document.querySelector(".board-wrap"),
   effectsLayer: document.querySelector("#effectsLayer"),
@@ -76,15 +139,33 @@ const els = {
   swap: document.querySelector("#swapButton"),
   home: document.querySelector("#homeButton"),
   restart: document.querySelector("#restartButton"),
+  settings: document.querySelector("#settingsButton"),
+  settingsModal: document.querySelector("#settingsModal"),
+  settingsClose: document.querySelector("#settingsCloseButton"),
+  soundToggle: document.querySelector("#soundToggleButton"),
+  themeButtons: [...document.querySelectorAll(".theme-button")],
   startPlacement: document.querySelector("#startPlacementButton"),
   startArcade: document.querySelector("#startArcadeButton"),
   startTetris: document.querySelector("#startTetrisButton"),
+  characterBack: document.querySelector("#characterBackButton"),
+  characterButtons: [...document.querySelectorAll(".character-card")],
+  selectedModeLabel: document.querySelector("#selectedModeLabel"),
+  heroName: document.querySelector("#heroName"),
+  activeCharacter: document.querySelector("#activeCharacter"),
+  activeCharacterToken: document.querySelector("#activeCharacterToken"),
+  championRibbon: document.querySelector("#championRibbon"),
+  championRole: document.querySelector("#championRole"),
+  gameBrand: document.querySelector("#gameBrandText"),
   tetrisControls: document.querySelector("#tetrisControls"),
   tetrisLeft: document.querySelector("#tetrisLeftButton"),
   tetrisRotate: document.querySelector("#tetrisRotateButton"),
   tetrisRight: document.querySelector("#tetrisRightButton"),
   tetrisDrop: document.querySelector("#tetrisDropButton"),
   modeTitle: document.querySelector("#modeTitle"),
+  levelChip: document.querySelector("#levelChip"),
+  levelValue: document.querySelector("#levelValue"),
+  levelBar: document.querySelector("#levelBar"),
+  levelProgress: document.querySelector("#levelProgress"),
   arcadeMeter: document.querySelector("#arcadeMeter"),
   rise: document.querySelector("#riseValue"),
   comboPop: document.querySelector("#comboPop"),
@@ -99,6 +180,9 @@ const state = {
   grid: makeGrid(),
   screen: "home",
   mode: "placement",
+  pendingMode: "placement",
+  hero: "rock",
+  settings: loadSettings(),
   score: 0,
   combo: 0,
   bestCombo: 0,
@@ -107,6 +191,9 @@ const state = {
   queue: [],
   history: [],
   moves: 0,
+  level: 1,
+  levelFlash: false,
+  tetrisPressureCountdown: null,
   riseCountdown: 8,
   locked: false,
   gameOver: false,
@@ -154,6 +241,55 @@ function haptic(duration = 8) {
   }
 }
 
+function loadSettings() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(SETTINGS_STORAGE_KEY) || "{}");
+    return {
+      sound: typeof saved.sound === "boolean" ? saved.sound : DEFAULT_SETTINGS.sound,
+      language: saved.language === "fr" ? saved.language : DEFAULT_SETTINGS.language,
+      theme: THEME_IDS.includes(saved.theme) ? saved.theme : DEFAULT_SETTINGS.theme,
+    };
+  } catch {
+    return { ...DEFAULT_SETTINGS };
+  }
+}
+
+function saveSettings() {
+  try {
+    localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(state.settings));
+  } catch {
+    // Local storage can be unavailable in private or restricted browser contexts.
+  }
+}
+
+function applySettings() {
+  const theme = THEMES[state.settings.theme] ?? THEMES.colombia;
+  document.body.dataset.theme = state.settings.theme;
+
+  els.homeBootText.dataset.text = theme.boot;
+  els.homeTitle.dataset.text = theme.title;
+  els.homeBootText.textContent = theme.boot;
+  els.homeTitle.textContent = theme.title;
+  els.themeSlogan.textContent = theme.slogan;
+  els.gameBrand.textContent = theme.brand;
+
+  els.soundToggle.classList.toggle("active", state.settings.sound);
+  els.soundToggle.setAttribute("aria-pressed", String(state.settings.sound));
+  els.soundToggle.querySelector("strong").textContent = state.settings.sound ? "Activé" : "Coupé";
+
+  for (const button of els.themeButtons) {
+    const selected = button.dataset.theme === state.settings.theme;
+    button.classList.toggle("selected", selected);
+    button.setAttribute("aria-pressed", String(selected));
+  }
+}
+
+function updateSetting(key, value) {
+  state.settings[key] = value;
+  saveSettings();
+  applySettings();
+}
+
 function isSpecial(tile) {
   return Boolean(tile?.special);
 }
@@ -184,8 +320,12 @@ function randomScrambleChar() {
   return SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)];
 }
 
-function buildCodeRain() {
-  els.codeRain.textContent = "";
+function buildCodeRain(target = els.codeRain) {
+  if (!target) {
+    return;
+  }
+
+  target.textContent = "";
 
   for (let column = 0; column < 12; column += 1) {
     const stream = document.createElement("span");
@@ -199,7 +339,7 @@ function buildCodeRain() {
     stream.textContent = lines.join("\n");
     stream.style.setProperty("--delay", `${-Math.random() * 10}s`);
     stream.style.setProperty("--speed", `${8 + Math.random() * 7}s`);
-    els.codeRain.append(stream);
+    target.append(stream);
   }
 }
 
@@ -469,6 +609,12 @@ function svgNode(name, attrs) {
   return node;
 }
 
+function createHeroMarkIcon() {
+  const icon = document.createElement("span");
+  icon.className = "mark-icon";
+  return icon;
+}
+
 function setPieceElement(element, type) {
   element.className = element.className
     .split(" ")
@@ -568,8 +714,24 @@ function render() {
   els.score.textContent = state.score.toLocaleString("fr-FR");
   els.combo.textContent = state.combo;
   els.shield.textContent = state.shields;
-  els.modeTitle.textContent =
-    state.mode === "placement" ? "Placement" : state.mode === "arcade" ? "Arcade" : "Tetris Arcade";
+  const hero = HEROES[state.hero];
+  els.modeTitle.textContent = MODE_LABELS[state.mode];
+  els.heroName.textContent = hero.name;
+  els.championRibbon.textContent = `Le ${hero.name.toLowerCase()}`;
+  els.championRole.textContent = hero.role;
+  els.gameScreen.dataset.mode = state.mode;
+  els.gameScreen.dataset.hero = state.hero;
+  els.levelValue.textContent = state.level;
+  const levelProgress = state.score % LEVEL_SCORE;
+  const levelPercent = Math.min(100, (levelProgress / LEVEL_SCORE) * 100);
+  els.levelProgress.textContent = `${levelProgress.toLocaleString("fr-FR")} / ${LEVEL_SCORE.toLocaleString("fr-FR")}`;
+  els.levelBar.style.width = `${levelPercent}%`;
+  els.levelChip.classList.toggle("level-up", state.levelFlash);
+  els.activeCharacter.dataset.hero = state.hero;
+  els.activeCharacter.setAttribute("aria-label", `${hero.name}, ${hero.role}`);
+  els.activeCharacterToken.className = `hero-token ${state.hero}`;
+  els.activeCharacterToken.textContent = "";
+  els.activeCharacterToken.append(createHeroMarkIcon(state.hero));
   els.arcadeMeter.classList.toggle("visible", state.mode === "arcade");
   els.tetrisControls.classList.toggle("visible", state.mode === "tetris");
   els.handPanel.classList.toggle("tetris-hand", state.mode === "tetris");
@@ -1184,9 +1346,47 @@ async function resolveBoard({ animate = true } = {}) {
 }
 
 function getArcadeInterval() {
-  if (state.moves >= 58) return 5;
-  if (state.moves >= 26) return 6;
+  if (state.level >= 6) return 5;
+  if (state.level >= 4 || state.moves >= 58) return 6;
+  if (state.level >= 2 || state.moves >= 26) return 7;
   return 8;
+}
+
+function getArcadeLayerCount() {
+  const roll = Math.random();
+
+  if (state.level < 2) {
+    return 1;
+  }
+
+  if (state.level < 4) {
+    return roll < 0.28 ? 2 : 1;
+  }
+
+  if (state.level < 6) {
+    if (roll < 0.12) return 3;
+    return roll < 0.52 ? 2 : 1;
+  }
+
+  if (roll < 0.24) return 3;
+  return roll < 0.72 ? 2 : 1;
+}
+
+async function pushArcadePressureLayers(count) {
+  const layers = Math.max(1, Math.min(3, count));
+
+  if (layers > 1) {
+    showCombo(`${layers} couches`);
+    await sleep(180);
+  }
+
+  for (let index = 0; index < layers; index += 1) {
+    if (state.gameOver) {
+      return;
+    }
+    await pushIncomingLine();
+    updateScoreLevel();
+  }
 }
 
 function makeIncomingLine() {
@@ -1201,7 +1401,7 @@ function makeIncomingLine() {
   return line;
 }
 
-async function pushIncomingLine() {
+async function pushIncomingLine(incomingLine = makeIncomingLine()) {
   const overflowing = state.grid[0].some(Boolean);
 
   if (overflowing) {
@@ -1220,7 +1420,7 @@ async function pushIncomingLine() {
   for (let row = 0; row < HEIGHT - 1; row += 1) {
     state.grid[row] = state.grid[row + 1];
   }
-  state.grid[HEIGHT - 1] = makeIncomingLine();
+  state.grid[HEIGHT - 1] = incomingLine;
   state.newLineKeys = new Set([...Array(WIDTH).keys()].map((col) => keyOf(HEIGHT - 1, col)));
   render();
   await sleep(260);
@@ -1264,8 +1464,103 @@ function clearTetrisTimer() {
   }
 }
 
+function getLevelFromScore(score = state.score) {
+  return Math.max(1, Math.floor(score / LEVEL_SCORE) + 1);
+}
+
 function getTetrisDropDelay() {
-  return Math.max(360, 900 - Math.floor(state.moves / 5) * 35);
+  const levelDelays = [900, 800, 720, 650, 590, 540, 500, 470, 440, TETRIS_MIN_DROP_DELAY];
+  return levelDelays[Math.min(state.level, levelDelays.length) - 1] ?? TETRIS_MIN_DROP_DELAY;
+}
+
+function getTetrisPressureInterval() {
+  if (state.level < 4) return null;
+  const intervals = {
+    4: 14,
+    5: 12,
+    6: 10,
+    7: 9,
+    8: 8,
+  };
+  return intervals[state.level] ?? 7;
+}
+
+function makeTetrisPressureLine() {
+  const line = Array(WIDTH).fill(null);
+  const fillCount = state.level >= 7 ? 5 : state.level >= 5 ? 4 : 3;
+  const columns = [...Array(WIDTH).keys()].sort(() => Math.random() - 0.5).slice(0, fillCount);
+
+  for (const col of columns) {
+    line[col] = { type: TYPES[Math.floor(Math.random() * TYPES.length)] };
+  }
+
+  return line;
+}
+
+function updateScoreLevel() {
+  if (state.mode !== "tetris" && state.mode !== "arcade") {
+    return false;
+  }
+
+  const nextLevel = getLevelFromScore();
+  if (nextLevel <= state.level) {
+    return false;
+  }
+
+  const previousLevel = state.level;
+  state.level = nextLevel;
+  state.levelFlash = true;
+  let shieldReward = false;
+
+  if (state.mode === "tetris" && previousLevel < 4 && state.level >= 4) {
+    state.tetrisPressureCountdown = getTetrisPressureInterval();
+  }
+
+  for (let level = previousLevel + 1; level <= state.level; level += 1) {
+    if (level % 3 === 0) {
+      shieldReward = true;
+      state.shields = Math.min(3, state.shields + 1);
+    }
+  }
+
+  showCombo(shieldReward ? `Niveau ${state.level} + Bouclier` : `Niveau ${state.level}`);
+  haptic(24);
+  window.setTimeout(() => {
+    state.levelFlash = false;
+    render();
+  }, 780);
+
+  return true;
+}
+
+async function maybePushTetrisPressureLine(skipTick = false) {
+  if (state.mode !== "tetris" || state.gameOver) {
+    return;
+  }
+
+  const interval = getTetrisPressureInterval();
+  if (!interval) {
+    state.tetrisPressureCountdown = null;
+    return;
+  }
+
+  if (!state.tetrisPressureCountdown || state.tetrisPressureCountdown > interval) {
+    state.tetrisPressureCountdown = interval;
+  }
+
+  if (skipTick) {
+    return;
+  }
+
+  state.tetrisPressureCountdown -= 1;
+  if (state.tetrisPressureCountdown > 0) {
+    return;
+  }
+
+  state.tetrisPressureCountdown = interval;
+  showCombo("Pression");
+  await pushIncomingLine(makeTetrisPressureLine());
+  updateScoreLevel();
 }
 
 function normalizeTetromino(cells) {
@@ -1398,6 +1693,9 @@ async function lockTetromino() {
   await sleep(80);
   await clearTetrisLines();
   await resolveBoard();
+  const leveledUp = updateScoreLevel();
+  render();
+  await maybePushTetrisPressureLine(leveledUp);
 
   if (!state.gameOver && spawnTetromino()) {
     state.locked = false;
@@ -1469,12 +1767,13 @@ async function placeAt(row, col) {
 
   await sleep(80);
   await resolveBoard();
+  updateScoreLevel();
 
   if (state.mode === "arcade" && !state.gameOver) {
     state.riseCountdown -= 1;
     if (state.riseCountdown <= 0) {
       state.riseCountdown = getArcadeInterval();
-      await pushIncomingLine();
+      await pushArcadePressureLayers(getArcadeLayerCount());
     }
   }
 
@@ -1538,14 +1837,45 @@ function showHome() {
   clearPreview();
   els.effectsLayer.textContent = "";
   els.modal.classList.add("hidden");
+  els.characterScreen.classList.add("hidden");
   els.gameScreen.classList.add("hidden");
   els.homeScreen.classList.remove("hidden");
   playHomeIntro();
 }
 
+function updateCharacterSelection() {
+  els.selectedModeLabel.textContent = `Mode ${MODE_LABELS[state.pendingMode]}`;
+
+  for (const button of els.characterButtons) {
+    const isSelected = button.dataset.character === state.hero;
+    button.classList.toggle("selected", isSelected);
+    button.setAttribute("aria-pressed", String(isSelected));
+  }
+}
+
+function showCharacterSelect(mode) {
+  if (state.locked) {
+    return;
+  }
+
+  state.screen = "character";
+  state.pendingMode = mode;
+  state.gameOver = true;
+  state.fallingPiece = null;
+  clearTetrisTimer();
+  clearPreview();
+  els.effectsLayer.textContent = "";
+  els.modal.classList.add("hidden");
+  els.homeScreen.classList.add("hidden");
+  els.gameScreen.classList.add("hidden");
+  els.characterScreen.classList.remove("hidden");
+  updateCharacterSelection();
+}
+
 function showGame() {
   state.screen = "game";
   els.homeScreen.classList.add("hidden");
+  els.characterScreen.classList.add("hidden");
   els.gameScreen.classList.remove("hidden");
 }
 
@@ -1623,6 +1953,9 @@ function newGame() {
   state.current = drawType();
   ensureQueue();
   state.moves = 0;
+  state.level = 1;
+  state.levelFlash = false;
+  state.tetrisPressureCountdown = getTetrisPressureInterval();
   state.riseCountdown = getArcadeInterval();
   state.locked = false;
   state.gameOver = false;
@@ -1767,11 +2100,44 @@ els.home.addEventListener("click", showHome);
 els.restart.addEventListener("click", newGame);
 els.newGame.addEventListener("click", newGame);
 els.revive.addEventListener("click", revive);
-els.startPlacement.addEventListener("click", () => startGame("placement"));
-els.startArcade.addEventListener("click", () => startGame("arcade"));
-els.startTetris.addEventListener("click", () => startGame("tetris"));
+els.settings.addEventListener("click", () => {
+  applySettings();
+  els.settingsModal.classList.remove("hidden");
+});
+els.settingsClose.addEventListener("click", () => {
+  els.settingsModal.classList.add("hidden");
+});
+els.settingsModal.addEventListener("click", (event) => {
+  if (event.target === els.settingsModal) {
+    els.settingsModal.classList.add("hidden");
+  }
+});
+els.soundToggle.addEventListener("click", () => {
+  updateSetting("sound", !state.settings.sound);
+});
+for (const button of els.themeButtons) {
+  button.addEventListener("click", () => {
+    updateSetting("theme", button.dataset.theme);
+  });
+}
+els.startPlacement.addEventListener("click", () => showCharacterSelect("placement"));
+els.startArcade.addEventListener("click", () => showCharacterSelect("arcade"));
+els.startTetris.addEventListener("click", () => showCharacterSelect("tetris"));
+els.characterBack.addEventListener("click", showHome);
+for (const button of els.characterButtons) {
+  button.addEventListener("click", () => {
+    state.hero = button.dataset.character;
+    updateCharacterSelection();
+    startGame(state.pendingMode);
+  });
+}
 
 window.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && !els.settingsModal.classList.contains("hidden")) {
+    els.settingsModal.classList.add("hidden");
+    return;
+  }
+
   if (state.mode !== "tetris" || state.screen !== "game" || state.gameOver) {
     return;
   }
@@ -1785,6 +2151,8 @@ window.addEventListener("keydown", (event) => {
   if (event.key === "ArrowDown" || event.key === " ") hardDropTetromino();
 });
 
-buildCodeRain();
+buildCodeRain(els.codeRain);
+buildCodeRain(els.characterCodeRain);
+applySettings();
 playHomeIntro();
 newGame();
